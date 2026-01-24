@@ -14,6 +14,18 @@
 
 </div>
 
+## Downloads
+
+| Platform | Download |
+|----------|----------|
+| macOS (Apple Silicon) | [Zero.Crust-darwin-arm64-1.0.0.zip](https://github.com/cameronrye/zero-crust/releases/download/v1.0.0/Zero.Crust-darwin-arm64-1.0.0.zip) |
+| macOS (Intel) | [Zero.Crust-darwin-x64-1.0.0.zip](https://github.com/cameronrye/zero-crust/releases/download/v1.0.0/Zero.Crust-darwin-x64-1.0.0.zip) |
+| Windows | [Zero.Crust-1.0.0.Setup.exe](https://github.com/cameronrye/zero-crust/releases/download/v1.0.0/Zero.Crust-1.0.0.Setup.exe) |
+| Linux (Debian/Ubuntu) | [zero-crust_1.0.0_amd64.deb](https://github.com/cameronrye/zero-crust/releases/download/v1.0.0/zero-crust_1.0.0_amd64.deb) |
+| Linux (Fedora/RHEL) | [zero-crust-1.0.0-1.x86_64.rpm](https://github.com/cameronrye/zero-crust/releases/download/v1.0.0/zero-crust-1.0.0-1.x86_64.rpm) |
+
+[View all releases](https://github.com/cameronrye/zero-crust/releases)
+
 ## Overview
 
 Zero Crust is a POS simulator designed to explore and validate architectural patterns for quick-service restaurant operations. It features a dual-window architecture with synchronized state management, simulating separate cashier and customer-facing displays while maintaining data consistency across both. This is a reference implementation for studying distributed state management, secure IPC communication, and offline-first design patterns.
