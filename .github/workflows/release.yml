@@ -173,6 +173,9 @@ jobs:
       !contains(needs.build.result, 'failure')
 
     steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
       - name: Download all artifacts
         uses: actions/download-artifact@v4
         with:
