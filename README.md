@@ -41,7 +41,7 @@ Zero Crust is a POS simulator designed to explore and validate architectural pat
          |    contextBridge (IPC)         |
          v                                v
 +--------------------------------------------------+
-|                  Main Process                     |
+|                  Main Process                    |
 |  +-------------+  +------------+  +------------+ |
 |  | MainStore   |  | Payment    |  | Persistence| |
 |  | (State)     |  | Service    |  | Service    | |
@@ -77,26 +77,26 @@ Zero Crust is a POS simulator designed to explore and validate architectural pat
 
 ```
 src/
-├── main/                 # Main process modules
-│   ├── MainStore.ts      # Centralized state management
-│   ├── WindowManager.ts  # Dual-head window orchestration
-│   ├── PaymentService.ts # Mock payment gateway
-│   ├── BroadcastService.ts # State synchronization
+├── main/                     # Main process modules
+│   ├── MainStore.ts          # Centralized state management
+│   ├── WindowManager.ts      # Dual-head window orchestration
+│   ├── PaymentService.ts     # Mock payment gateway
+│   ├── BroadcastService.ts   # State synchronization
 │   ├── PersistenceService.ts # Local data storage
-│   ├── SecurityHandlers.ts # Electron security config
-│   └── Logger.ts         # Structured logging
-├── renderer/             # React application
-│   ├── views/            # Cashier and Customer views
-│   ├── components/       # Reusable UI components
-│   └── hooks/            # React hooks for state/commands
-├── shared/               # Shared types and utilities
-│   ├── ipc-types.ts      # IPC command definitions
-│   ├── schemas.ts        # Zod validation schemas
-│   ├── currency.ts       # Integer currency utilities
-│   └── catalog.ts        # Product catalog
-├── main.ts               # Main process entry point
-├── preload.ts            # Secure IPC bridge
-└── renderer.tsx          # React entry point
+│   ├── SecurityHandlers.ts   # Electron security config
+│   └── Logger.ts             # Structured logging
+├── renderer/                 # React application
+│   ├── views/                # Cashier and Customer views
+│   ├── components/           # Reusable UI components
+│   └── hooks/                # React hooks for state/commands
+├── shared/                   # Shared types and utilities
+│   ├── ipc-types.ts          # IPC command definitions
+│   ├── schemas.ts            # Zod validation schemas
+│   ├── currency.ts           # Integer currency utilities
+│   └── catalog.ts            # Product catalog
+├── main.ts                   # Main process entry point
+├── preload.ts                # Secure IPC bridge
+└── renderer.tsx              # React entry point
 ```
 
 ## Getting Started
