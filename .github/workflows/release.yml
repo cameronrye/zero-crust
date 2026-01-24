@@ -41,7 +41,7 @@ jobs:
           - os: macos-latest
             platform: darwin
             arch: arm64
-          - os: macos-13
+          - os: macos-14
             platform: darwin
             arch: x64
           - os: windows-latest
@@ -161,7 +161,12 @@ jobs:
   publish:
     needs: build
     runs-on: ubuntu-latest
-    if: startsWith(github.ref, 'refs/tags/v') && github.event.inputs.dry_run != 'true'
+    # Run even if some builds were cancelled (but not if they failed)
+    if: |
+      always() &&
+      startsWith(github.ref, 'refs/tags/v') &&
+      github.event.inputs.dry_run != 'true' &&
+      !contains(needs.build.result, 'failure')
 
     steps:
       - name: Checkout code
