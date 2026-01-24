@@ -32,6 +32,10 @@ concurrency:
   group: release-${{ github.ref }}
   cancel-in-progress: true
 
+# Required permissions for creating releases
+permissions:
+  contents: write
+
 jobs:
   build:
     strategy:
