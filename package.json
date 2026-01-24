@@ -61,7 +61,6 @@
     "eslint-plugin-react": "^7.37.5",
     "eslint-plugin-react-hooks": "^7.0.1",
     "jsdom": "^27.4.0",
-    "playwright": "^1.58.0",
     "png-to-ico": "^3.0.1",
     "sharp": "^0.34.5",
     "typescript": "^5.9.3",
