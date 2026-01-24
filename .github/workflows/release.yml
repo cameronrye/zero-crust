@@ -173,33 +173,31 @@ jobs:
       !contains(needs.build.result, 'failure')
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v4
-        with:
-          version: 9
-
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
-
       - name: Download all artifacts
         uses: actions/download-artifact@v4
         with:
-          path: out/make
+          path: artifacts
           merge-multiple: true
 
-      - name: List artifacts
-        run: find out/make -type f | head -50
+      - name: List downloaded artifacts
+        run: find artifacts -type f
 
-      - name: Publish to GitHub Releases
+      - name: Create or update GitHub Release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: pnpm run publish
+          TAG_NAME: ${{ github.ref_name }}
+        run: |
+          # Check if release exists
+          if gh release view "$TAG_NAME" &>/dev/null; then
+            echo "Release $TAG_NAME exists, uploading assets..."
+          else
+            echo "Creating release $TAG_NAME..."
+            gh release create "$TAG_NAME" --draft --generate-notes --title "$TAG_NAME"
+          fi
+
+          # Upload all artifacts
+          find artifacts -type f \( -name "*.zip" -o -name "*.dmg" -o -name "*.exe" -o -name "*.nupkg" -o -name "*.deb" -o -name "*.rpm" -o -name "RELEASES" \) | while read file; do
+            echo "Uploading: $file"
+            gh release upload "$TAG_NAME" "$file" --clobber || true
+          done
 
