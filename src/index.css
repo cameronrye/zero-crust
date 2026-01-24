@@ -1,0 +1,31 @@
+@import 'tailwindcss';
+
+/*
+ * Custom Title Bar Support
+ *
+ * These CSS variables and rules support the custom frameless window
+ * with themed title bar across all platforms:
+ * - macOS: Traffic light controls on the left
+ * - Windows/Linux: Window controls overlay on the right
+ */
+
+:root {
+  /* Title bar height - matches the header/drag region height */
+  --titlebar-height: 40px;
+
+  /* Safe area insets from Window Controls Overlay API */
+  --titlebar-area-x: env(titlebar-area-x, 0px);
+  --titlebar-area-y: env(titlebar-area-y, 0px);
+  --titlebar-area-width: env(titlebar-area-width, 0px);
+  --titlebar-area-height: env(titlebar-area-height, var(--titlebar-height));
+}
+
+/* Ensure the root element fills the viewport */
+#root {
+  min-height: 100vh;
+}
+
+/* Prevent text selection in drag regions */
+[style*="WebkitAppRegion: drag"] {
+  user-select: none;
+}

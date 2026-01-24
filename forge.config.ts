@@ -6,6 +6,7 @@ import { MakerRpm } from '@electron-forge/maker-rpm';
 import { VitePlugin } from '@electron-forge/plugin-vite';
 import { FusesPlugin } from '@electron-forge/plugin-fuses';
 import { FuseV1Options, FuseVersion } from '@electron/fuses';
+import { PublisherGithub } from '@electron-forge/publisher-github';
 import path from 'node:path';
 import 'dotenv/config';
 
@@ -74,7 +75,7 @@ const config: ForgeConfig = {
         productName: 'Zero Crust',
         genericName: 'Business Application',
         description: 'Dual-Head Distributed System',
-        categories: ['Office', 'Finance'],
+        categories: ['Office'],
         icon: path.resolve(__dirname, 'assets/icon.png'),
       },
     }),
@@ -84,7 +85,7 @@ const config: ForgeConfig = {
         productName: 'Zero Crust',
         genericName: 'Business Application',
         description: 'Dual-Head Distributed System',
-        categories: ['Office', 'Finance'],
+        categories: ['Office'],
         icon: path.resolve(__dirname, 'assets/icon.png'),
       },
     }),
@@ -132,6 +133,25 @@ const config: ForgeConfig = {
       [FuseV1Options.OnlyLoadAppFromAsar]: true,
       // Security: Restrict file:// protocol privileges
       [FuseV1Options.GrantFileProtocolExtraPrivileges]: false,
+    }),
+  ],
+  // ==========================================================================
+  // GitHub Releases Publisher Configuration
+  // ==========================================================================
+  // Publishes builds to GitHub Releases for distribution and auto-updates.
+  // Requires GITHUB_TOKEN environment variable with repo scope.
+  //
+  // To publish: GITHUB_TOKEN=... pnpm publish
+  // ==========================================================================
+  publishers: [
+    new PublisherGithub({
+      repository: {
+        owner: 'cameronrye',
+        name: 'zero-crust',
+      },
+      prerelease: false,
+      draft: true, // Create as draft first, then manually publish after review
+      generateReleaseNotes: true,
     }),
   ],
 };

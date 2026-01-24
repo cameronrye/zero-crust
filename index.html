@@ -1,0 +1,33 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!--
+      Content Security Policy (CSP) - Electron Security Best Practice
+
+      Note: 'unsafe-inline' for style-src is required for Tailwind CSS v4's runtime styles.
+      This is a known limitation. For maximum security, consider using Tailwind's static
+      extraction in production builds.
+
+      Directives:
+      - default-src 'self': Only allow resources from same origin
+      - script-src 'self': Only allow scripts from same origin
+      - style-src 'self' 'unsafe-inline': Allow styles (Tailwind needs inline)
+      - img-src 'self' data:: Allow images and data URIs
+      - font-src 'self': Only allow fonts from same origin
+      - connect-src 'self': Only allow fetch/XHR to same origin
+      - form-action 'self': Restrict form submissions
+      - base-uri 'self': Restrict base tag
+
+      Note: 'frame-ancestors' is not included here because it's ignored in meta tags.
+      In Electron, iframe embedding is already prevented by default security settings.
+    -->
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self'; form-action 'self'; base-uri 'self';" />
+    <title>Zero Crust</title>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/renderer.tsx"></script>
+  </body>
+</html>
