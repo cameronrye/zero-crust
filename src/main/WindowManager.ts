@@ -281,12 +281,20 @@ class WindowManager {
    * If windows are already visible, just focus the cashier.
    */
   public showPrimaryWindowsIfNoneVisible(): void {
-    // If any windows are already visible, just focus the cashier
+    // If any windows are already visible, bring the last focused window to front
+    // This preserves z-order (e.g., if a receipt window was on top, it stays on top)
     if (this.hasVisibleWindows()) {
-      const cashier = this.windows.get('cashier');
-      if (cashier && this.isWindowVisible('cashier')) {
-        cashier.focus();
-        logger.debug('Focused existing visible cashier window');
+      if (this.lastFocusedWindow && !this.lastFocusedWindow.isDestroyed()) {
+        this.lastFocusedWindow.moveTop();
+        this.lastFocusedWindow.focus();
+        logger.debug('Focused last focused window to preserve z-order');
+      } else {
+        // Fallback: focus the cashier window
+        const cashier = this.windows.get('cashier');
+        if (cashier && this.isWindowVisible('cashier')) {
+          cashier.focus();
+          logger.debug('Focused existing visible cashier window');
+        }
       }
       return;
     }

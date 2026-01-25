@@ -38,7 +38,7 @@ Zero Crust is a POS simulator designed to explore and validate architectural pat
     <td><img src="assets/screenshots/customer.png" alt="Customer Display" width="250"></td>
   </tr>
   <tr>
-    <td colspan="2"><img src="assets/screenshots/transactions.png" alt="Dual-Window Transaction View" width="750"></td>
+    <td colspan="2"><img src="assets/screenshots/transactions.png" alt="Dual-Window Transaction View" width="100%"></td>
   </tr>
 </table>
 

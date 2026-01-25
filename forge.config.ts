@@ -52,8 +52,13 @@ const config: ForgeConfig = {
       name: 'ZeroCrust',
       authors: 'Zero Crust',
       description: 'Dual-Head Distributed System',
-      iconUrl: 'https://raw.githubusercontent.com/example/zero-crust/main/assets/icon.ico',
+      // iconUrl is used for the icon in Control Panel > Programs and Features
+      // Using file:// protocol for local builds; for production, host the icon at a public URL
+      iconUrl: `file://${path.resolve(__dirname, 'assets/icon.ico').replace(/\\/g, '/')}`,
       setupIcon: path.resolve(__dirname, 'assets/icon.ico'),
+      // Loading animation shown during installation (only displays if install takes > preset time)
+      // Generate with: node scripts/generate-loading-gif.mjs
+      loadingGif: path.resolve(__dirname, 'assets/installer-loading.gif'),
       // ==========================================================================
       // Windows Code Signing Configuration
       // ==========================================================================
