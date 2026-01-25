@@ -18,11 +18,11 @@
 
 | Platform | Download |
 |----------|----------|
-| macOS (Apple Silicon) | [Zero.Crust-darwin-arm64-1.1.2.zip](https://github.com/cameronrye/zero-crust/releases/download/v1.1.2/Zero.Crust-darwin-arm64-1.1.2.zip) |
-| macOS (Intel) | [Zero.Crust-darwin-x64-1.1.2.zip](https://github.com/cameronrye/zero-crust/releases/download/v1.1.2/Zero.Crust-darwin-x64-1.1.2.zip) |
-| Windows | [Zero.Crust-1.1.2.Setup.exe](https://github.com/cameronrye/zero-crust/releases/download/v1.1.2/Zero.Crust-1.1.2.Setup.exe) |
-| Linux (Debian/Ubuntu) | [zero-crust_1.1.2_amd64.deb](https://github.com/cameronrye/zero-crust/releases/download/v1.1.2/zero-crust_1.1.2_amd64.deb) |
-| Linux (Fedora/RHEL) | [zero-crust-1.1.2-1.x86_64.rpm](https://github.com/cameronrye/zero-crust/releases/download/v1.1.2/zero-crust-1.1.2-1.x86_64.rpm) |
+| macOS (Apple Silicon) | [Zero.Crust-darwin-arm64-1.1.3.zip](https://github.com/cameronrye/zero-crust/releases/download/v1.1.3/Zero.Crust-darwin-arm64-1.1.3.zip) |
+| macOS (Intel) | [Zero.Crust-darwin-x64-1.1.3.zip](https://github.com/cameronrye/zero-crust/releases/download/v1.1.3/Zero.Crust-darwin-x64-1.1.3.zip) |
+| Windows | [Zero.Crust-1.1.3.Setup.exe](https://github.com/cameronrye/zero-crust/releases/download/v1.1.3/Zero.Crust-1.1.3.Setup.exe) |
+| Linux (Debian/Ubuntu) | [zero-crust_1.1.3_amd64.deb](https://github.com/cameronrye/zero-crust/releases/download/v1.1.3/zero-crust_1.1.3_amd64.deb) |
+| Linux (Fedora/RHEL) | [zero-crust-1.1.3-1.x86_64.rpm](https://github.com/cameronrye/zero-crust/releases/download/v1.1.3/zero-crust-1.1.3-1.x86_64.rpm) |
 
 [View all releases](https://github.com/cameronrye/zero-crust/releases)
 
@@ -47,6 +47,7 @@ Zero Crust is a POS simulator designed to explore and validate architectural pat
 ## Key Features
 
 - **Dual-Head Display Simulation** - Separate cashier and customer windows with real-time synchronization
+- **Custom Titlebars** - Native-feeling window controls with theme-matched colors on macOS, Windows, and Linux
 - **Offline-First Architecture** - Local data persistence demonstrates continuous operation patterns
 - **Integer-Only Currency** - All monetary values stored in cents to prevent floating-point errors
 - **Command Pattern IPC** - Type-safe, auditable command system for all state mutations

@@ -87,8 +87,15 @@ class WindowManager {
         titleBarStyle: 'hidden' as const,
         trafficLightPosition: { x: 16, y: 12 },
       }),
-      // Windows/Linux: Use standard frame to avoid blank window issues
-      // titleBarOverlay can cause rendering problems on some Windows systems
+      // Windows/Linux: Custom title bar with overlay controls that match app theme
+      ...((process.platform === 'win32' || process.platform === 'linux') && {
+        titleBarStyle: 'hidden' as const,
+        titleBarOverlay: {
+          color: '#1e293b', // slate-800 - matches header background
+          symbolColor: '#f59e0b', // amber-500 - matches accent color
+          height: 40,
+        },
+      }),
       webPreferences: {
         preload: path.join(__dirname, 'preload.js'),
         // Security: Enable context isolation to prevent renderer access to Node

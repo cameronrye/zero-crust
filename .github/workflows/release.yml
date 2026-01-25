@@ -185,6 +185,41 @@ jobs:
       - name: List downloaded artifacts
         run: find artifacts -type f
 
+      - name: Generate latest.yml for Windows auto-updater
+        env:
+          TAG_NAME: ${{ github.ref_name }}
+        run: |
+          # Find the Windows setup exe
+          SETUP_EXE=$(find artifacts -name "*.Setup.exe" -type f | head -1)
+          if [ -n "$SETUP_EXE" ]; then
+            # Extract version from tag (remove 'v' prefix)
+            VERSION="${TAG_NAME#v}"
+
+            # Get file info
+            FILENAME=$(basename "$SETUP_EXE")
+            FILESIZE=$(stat -c%s "$SETUP_EXE" 2>/dev/null || stat -f%z "$SETUP_EXE")
+            SHA512=$(sha512sum "$SETUP_EXE" | cut -d' ' -f1)
+            SHA512_BASE64=$(echo -n "$SHA512" | xxd -r -p | base64 -w0 2>/dev/null || echo -n "$SHA512" | xxd -r -p | base64)
+            RELEASE_DATE=$(date -u +"%Y-%m-%dT%H:%M:%S.000Z")
+
+            # Generate latest.yml
+            cat > artifacts/latest.yml << EOF
+version: ${VERSION}
+files:
+  - url: ${FILENAME}
+    sha512: ${SHA512_BASE64}
+    size: ${FILESIZE}
+path: ${FILENAME}
+sha512: ${SHA512_BASE64}
+releaseDate: '${RELEASE_DATE}'
+EOF
+
+            echo "Generated latest.yml:"
+            cat artifacts/latest.yml
+          else
+            echo "No Windows setup exe found, skipping latest.yml generation"
+          fi
+
       - name: Create or update GitHub Release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -198,8 +233,8 @@ jobs:
             gh release create "$TAG_NAME" --draft --generate-notes --title "$TAG_NAME"
           fi
 
-          # Upload all artifacts
-          find artifacts -type f \( -name "*.zip" -o -name "*.dmg" -o -name "*.exe" -o -name "*.nupkg" -o -name "*.deb" -o -name "*.rpm" -o -name "RELEASES" \) | while read file; do
+          # Upload all artifacts including latest.yml
+          find artifacts -type f \( -name "*.zip" -o -name "*.dmg" -o -name "*.exe" -o -name "*.nupkg" -o -name "*.deb" -o -name "*.rpm" -o -name "RELEASES" -o -name "latest.yml" \) | while read file; do
             echo "Uploading: $file"
             gh release upload "$TAG_NAME" "$file" --clobber || true
           done

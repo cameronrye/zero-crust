@@ -36,29 +36,51 @@ export function validateSender(senderFrame: Electron.WebFrameMain): boolean {
 
   // In production, verify sender is from our app's file path
   if (!url.startsWith('file://')) {
+    logger.debug('Sender validation failed: not a file:// URL', { url });
     return false;
   }
 
   // Extract path from file:// URL and verify it's within our app
   try {
     const parsedUrl = new URL(url);
-    const filePath = decodeURIComponent(parsedUrl.pathname);
+    let filePath = decodeURIComponent(parsedUrl.pathname);
+
+    // On Windows, file:// URLs have format file:///C:/path/to/file
+    // The pathname will be /C:/path/to/file, so we need to remove the leading slash
+    if (process.platform === 'win32' && filePath.startsWith('/')) {
+      filePath = filePath.slice(1);
+    }
 
     // Verify the file is within the app's resource path or app path
     const appPath = app.getAppPath();
     const resourcesPath = process.resourcesPath;
 
-    // Normalize paths for comparison
-    const normalizedFilePath = path.normalize(filePath);
-    const normalizedAppPath = path.normalize(appPath);
-    const normalizedResourcesPath = path.normalize(resourcesPath);
+    // Normalize all paths to use consistent separators for comparison
+    // Use lowercase on Windows for case-insensitive comparison
+    const normalizePath = (p: string): string => {
+      const normalized = path.normalize(p);
+      return process.platform === 'win32' ? normalized.toLowerCase() : normalized;
+    };
 
-    return (
+    const normalizedFilePath = normalizePath(filePath);
+    const normalizedAppPath = normalizePath(appPath);
+    const normalizedResourcesPath = normalizePath(resourcesPath);
+
+    const isValid =
       normalizedFilePath.startsWith(normalizedAppPath) ||
-      normalizedFilePath.startsWith(normalizedResourcesPath)
-    );
-  } catch {
-    logger.warn('Failed to parse sender URL', { url });
+      normalizedFilePath.startsWith(normalizedResourcesPath);
+
+    if (!isValid) {
+      logger.debug('Sender validation failed: path not in app directory', {
+        filePath: normalizedFilePath,
+        appPath: normalizedAppPath,
+        resourcesPath: normalizedResourcesPath,
+      });
+    }
+
+    return isValid;
+  } catch (error) {
+    logger.warn('Failed to parse sender URL', { url, error: String(error) });
     return false;
   }
 }

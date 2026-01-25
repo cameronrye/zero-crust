@@ -5,23 +5,17 @@
  * It is draggable to allow window movement on all platforms.
  *
  * Window Controls Layout:
- * - macOS: Traffic lights on LEFT (~70px), nothing on right
- * - Windows/Linux: Nothing on left, window controls on RIGHT (~140px)
+ * - macOS: Traffic lights on LEFT (~80px), nothing on right
+ * - Windows: Nothing on left, window controls on RIGHT (~140px)
  *
- * Note: The Window Controls Overlay API (env variables) only works on Windows/Linux
+ * Note: The Window Controls Overlay API (env variables) only works on Windows
  * when titleBarOverlay is enabled. On macOS with titleBarStyle: 'hidden',
  * we must use fixed padding for the traffic light controls.
  */
 
 import type { Metrics } from '@shared/ipc-types';
 import { formatCurrency } from '@shared/currency';
-
-// Platform-specific padding for window controls
-// macOS: ~70px for traffic lights on the left
-// Windows/Linux: Standard window frame (no overlay controls in content area)
-const IS_MAC = navigator.platform.toUpperCase().includes('MAC');
-const LEFT_SAFE_AREA = IS_MAC ? '80px' : '1.5rem';
-const RIGHT_SAFE_AREA = '1rem';
+import { WINDOW_SAFE_AREAS } from '../utils/platform';
 
 interface MetricsBarProps {
   metrics: Metrics;
@@ -44,9 +38,9 @@ export function MetricsBar({
         // @ts-expect-error - WebKit-specific CSS property for Electron
         WebkitAppRegion: 'drag',
         // Left padding: space for macOS traffic lights
-        paddingLeft: LEFT_SAFE_AREA,
-        // Right padding: space for Windows/Linux controls
-        paddingRight: RIGHT_SAFE_AREA,
+        paddingLeft: WINDOW_SAFE_AREAS.left,
+        // Right padding: space for Windows window controls
+        paddingRight: WINDOW_SAFE_AREAS.right,
       }}
     >
       <div

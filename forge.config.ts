@@ -170,7 +170,7 @@ const config: ForgeConfig = {
   // electron-updater requires this file to know where to check for updates.
   // ==========================================================================
   hooks: {
-    postPackage: async (_config, options) => {
+    postPackage: async (forgeConfig, options) => {
       // Generate app-update.yml for electron-updater
       // This file tells electron-updater where to check for updates
       const appUpdateYml = `provider: github
@@ -179,12 +179,16 @@ repo: zero-crust
 updaterCacheDirName: zero-crust-updater
 `;
 
+      const appName = forgeConfig.packagerConfig?.name || 'Zero Crust';
+
       for (const outputPath of options.outputPaths) {
         let resourcesPath: string;
 
         if (options.platform === 'darwin') {
-          // macOS: Contents/Resources/app-update.yml
-          resourcesPath = path.join(outputPath, 'Contents', 'Resources');
+          // macOS: outputPath contains the .app bundle, e.g., out/Zero Crust-darwin-arm64
+          // The app is at: out/Zero Crust-darwin-arm64/Zero Crust.app/Contents/Resources
+          const appBundlePath = path.join(outputPath, `${appName}.app`);
+          resourcesPath = path.join(appBundlePath, 'Contents', 'Resources');
         } else {
           // Windows/Linux: resources/app-update.yml
           resourcesPath = path.join(outputPath, 'resources');
