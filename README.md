@@ -16,6 +16,8 @@
 
 ## Downloads
 
+<img src="assets/screenshots/receipt.png" alt="Receipt Window" width="200" align="right">
+
 | Platform | Download |
 |----------|----------|
 | macOS (Apple Silicon) | [Zero.Crust-darwin-arm64-1.1.0.zip](https://github.com/cameronrye/zero-crust/releases/download/v1.1.0/Zero.Crust-darwin-arm64-1.1.0.zip) |
@@ -37,9 +39,12 @@ Zero Crust is a POS simulator designed to explore and validate architectural pat
     <td><img src="assets/screenshots/cashier.png" alt="Cashier Window" width="500"></td>
     <td><img src="assets/screenshots/customer.png" alt="Customer Display" width="250"></td>
   </tr>
+  <tr>
+    <td colspan="2"><img src="assets/screenshots/transactions.png" alt="Dual-Window Transaction View" width="750"></td>
+  </tr>
 </table>
 
-<img src="assets/screenshots/transactions.png" alt="Dual-Window Transaction View" width="100%">
+
 
 ## Key Features
 
@@ -205,8 +210,6 @@ Zero Crust implements Electron security best practices:
 - **Sender Verification** - IPC handlers validate message origin
 
 ## Simulation Loop
-
-<img src="assets/screenshots/receipt.png" alt="Receipt Window" width="200" align="right">
 
 The simulator includes an automated transaction loop for continuous operation:
 
