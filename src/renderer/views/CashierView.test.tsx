@@ -26,6 +26,7 @@ describe('CashierView', () => {
     transactionStatus: 'IDLE',
     version: 1,
     retryCount: 0,
+    demoLoopRunning: false,
   };
 
   const mockMetrics: Metrics = {

@@ -231,6 +231,7 @@ describe('MainStore - State Broadcast Consistency', () => {
 
       const state = store.getState();
       state.cart.push({
+        id: 'hacked-id',
         sku: 'HACKED',
         name: 'Hacked Item',
         priceInCents: cents(0),

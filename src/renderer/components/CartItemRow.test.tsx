@@ -10,6 +10,7 @@ import type { Cents } from '@shared/currency';
 
 describe('CartItemRow', () => {
   const mockItem: CartItem = {
+    id: 'test-cart-item-1',
     sku: 'PIZZA-001',
     name: 'Pepperoni Pizza',
     priceInCents: 1299 as Cents,

@@ -2,18 +2,11 @@
  * CartSidebar - Cart display with items list and payment actions
  */
 
-import type { AppState, CartItem, TransactionStatus } from '@shared/ipc-types';
+import type { AppState, CartItem } from '@shared/ipc-types';
 import type { Cents } from '@shared/currency';
 import { CartItemRow } from './CartItemRow';
 import { PaymentActions } from './PaymentActions';
-
-const STATUS_COLORS: Record<TransactionStatus, string> = {
-  IDLE: 'bg-emerald-500',
-  PENDING: 'bg-amber-500',
-  PROCESSING: 'bg-amber-500 animate-pulse',
-  PAID: 'bg-emerald-500',
-  ERROR: 'bg-rose-600',
-};
+import { STATUS_BADGE_COLORS } from '../utils/status';
 
 interface CartSidebarProps {
   state: AppState | null;
@@ -47,7 +40,7 @@ export function CartSidebar({
     <div className="w-80 bg-slate-800 border-l border-slate-700 flex flex-col min-h-0">
       <div className="p-4 border-b border-slate-700 shrink-0 flex items-center justify-between">
         <h2 className="font-bold text-lg">Current Order</h2>
-        <span className={`px-3 py-1 rounded text-sm font-bold ${STATUS_COLORS[status]}`}>
+        <span className={`px-3 py-1 rounded text-sm font-bold ${STATUS_BADGE_COLORS[status]}`}>
           {status}
         </span>
       </div>
@@ -60,7 +53,7 @@ export function CartSidebar({
           <div className="space-y-3">
             {state.cart.map((item: CartItem, index: number) => (
               <CartItemRow
-                key={`${item.sku}-${index}`}
+                key={item.id}
                 item={item}
                 disabled={isLocked}
                 onRemove={() => onRemoveItem(item.sku, index)}

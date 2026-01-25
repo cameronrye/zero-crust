@@ -32,6 +32,8 @@ export type TransactionStatus = 'IDLE' | 'PENDING' | 'PROCESSING' | 'PAID' | 'ER
 
 // Cart item
 export interface CartItem {
+  /** Unique identifier for this cart entry */
+  id: string;
   sku: string;
   name: string;
   /** Price in cents (integer-only math) */

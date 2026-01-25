@@ -5,11 +5,14 @@
  * - MetricsBar: Real-time transaction metrics, status, and controls
  * - ProductGrid: Category tabs and product selection
  * - CartSidebar: Cart items and payment actions
+ *
+ * Each section is wrapped in SectionErrorBoundary for graceful degradation.
+ * If one section fails, others continue to function.
  */
 
 import { useState } from 'react';
 import type { ProductCategory } from '@shared/catalog';
-import { MetricsBar, ProductGrid, CartSidebar, LoadingSkeleton } from '../components';
+import { MetricsBar, ProductGrid, CartSidebar, LoadingSkeleton, SectionErrorBoundary } from '../components';
 import { usePOSState, usePOSMetrics, usePOSCommands, useKeyboardShortcuts } from '../hooks';
 
 export default function CashierView() {
@@ -44,35 +47,41 @@ export default function CashierView() {
   return (
     <div className="h-screen bg-slate-900 text-gray-100 font-sans flex flex-col overflow-hidden">
       {metrics && (
-        <MetricsBar
-          metrics={metrics}
-          isLocked={isLocked}
-          demoLoopRunning={state?.demoLoopRunning ?? false}
-          onToggleDemoLoop={handleToggleDemoLoop}
-        />
+        <SectionErrorBoundary sectionName="Metrics">
+          <MetricsBar
+            metrics={metrics}
+            isLocked={isLocked}
+            demoLoopRunning={state?.demoLoopRunning ?? false}
+            onToggleDemoLoop={handleToggleDemoLoop}
+          />
+        </SectionErrorBoundary>
       )}
 
       <div className="flex flex-1 overflow-hidden">
-        <ProductGrid
-          selectedCategory={selectedCategory}
-          onCategoryChange={setSelectedCategory}
-          onAddItem={commands.handleAddItem}
-          onQuickOrder={commands.handleDemoOrder}
-          isLocked={isLocked}
-          demoLoopRunning={state?.demoLoopRunning ?? false}
-        />
+        <SectionErrorBoundary sectionName="Product Grid">
+          <ProductGrid
+            selectedCategory={selectedCategory}
+            onCategoryChange={setSelectedCategory}
+            onAddItem={commands.handleAddItem}
+            onQuickOrder={commands.handleDemoOrder}
+            isLocked={isLocked}
+            demoLoopRunning={state?.demoLoopRunning ?? false}
+          />
+        </SectionErrorBoundary>
 
-        <CartSidebar
-          state={state}
-          onRemoveItem={commands.handleRemoveItem}
-          onUpdateQuantity={commands.handleUpdateQuantity}
-          onClearCart={commands.handleClearCart}
-          onCheckout={commands.handleCheckout}
-          onProcessPayment={commands.handleProcessPayment}
-          onRetryPayment={commands.handleRetryPayment}
-          onNewTransaction={commands.handleNewTransaction}
-          onCancelCheckout={commands.handleCancelCheckout}
-        />
+        <SectionErrorBoundary sectionName="Cart">
+          <CartSidebar
+            state={state}
+            onRemoveItem={commands.handleRemoveItem}
+            onUpdateQuantity={commands.handleUpdateQuantity}
+            onClearCart={commands.handleClearCart}
+            onCheckout={commands.handleCheckout}
+            onProcessPayment={commands.handleProcessPayment}
+            onRetryPayment={commands.handleRetryPayment}
+            onNewTransaction={commands.handleNewTransaction}
+            onCancelCheckout={commands.handleCancelCheckout}
+          />
+        </SectionErrorBoundary>
       </div>
     </div>
   );

@@ -11,10 +11,11 @@ describe('WindowIdSchema', () => {
   it('should accept valid window IDs', () => {
     expect(WindowIdSchema.safeParse('cashier').success).toBe(true);
     expect(WindowIdSchema.safeParse('customer').success).toBe(true);
+    expect(WindowIdSchema.safeParse('dashboard').success).toBe(true);
   });
 
   it('should reject invalid window IDs', () => {
-    expect(WindowIdSchema.safeParse('dashboard').success).toBe(false);
+    expect(WindowIdSchema.safeParse('admin').success).toBe(false);
     expect(WindowIdSchema.safeParse('').success).toBe(false);
     expect(WindowIdSchema.safeParse(123).success).toBe(false);
   });

@@ -63,6 +63,8 @@ class WindowManager {
   // Track which windows were visible before "Hide All" was called
   private hiddenWindowState: Set<WindowId> = new Set();
   private hiddenReceiptWindows: Set<BrowserWindow> = new Set();
+  // Track if app is quitting to allow windows to close
+  private isQuitting = false;
 
   /**
    * Create a window with secure settings
@@ -145,7 +147,7 @@ class WindowManager {
     // Minimize on close instead of destroying (both windows required for POS)
     window.on('close', (event) => {
       // Allow close during app quit
-      if ((this as WindowManager & { isQuitting?: boolean }).isQuitting) {
+      if (this.isQuitting) {
         return;
       }
       event.preventDefault();
@@ -175,7 +177,7 @@ class WindowManager {
    * Mark that app is quitting to allow windows to close
    */
   public setQuitting(quitting: boolean): void {
-    (this as WindowManager & { isQuitting?: boolean }).isQuitting = quitting;
+    this.isQuitting = quitting;
   }
 
   /**

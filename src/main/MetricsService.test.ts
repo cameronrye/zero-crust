@@ -49,8 +49,8 @@ describe('MetricsService', () => {
   describe('recordTransaction', () => {
     it('should record a transaction and update metrics', () => {
       const items = [
-        { sku: 'PIZZA-001', name: 'Pepperoni', priceInCents: cents(599), quantity: 2 },
-        { sku: 'DRINK-001', name: 'Soda', priceInCents: cents(199), quantity: 1 },
+        { id: 'item-1', sku: 'PIZZA-001', name: 'Pepperoni', priceInCents: cents(599), quantity: 2 },
+        { id: 'item-2', sku: 'DRINK-001', name: 'Soda', priceInCents: cents(199), quantity: 1 },
       ];
       const total = cents(1397);
 
@@ -63,7 +63,7 @@ describe('MetricsService', () => {
     });
 
     it('should broadcast metrics after recording', () => {
-      const items = [{ sku: 'TEST', name: 'Test', priceInCents: cents(100), quantity: 1 }];
+      const items = [{ id: 'item-1', sku: 'TEST', name: 'Test', priceInCents: cents(100), quantity: 1 }];
 
       metricsService.recordTransaction(items, cents(100));
 
@@ -74,7 +74,7 @@ describe('MetricsService', () => {
     });
 
     it('should accumulate multiple transactions', () => {
-      const items = [{ sku: 'TEST', name: 'Test', priceInCents: cents(500), quantity: 2 }];
+      const items = [{ id: 'item-1', sku: 'TEST', name: 'Test', priceInCents: cents(500), quantity: 2 }];
 
       metricsService.recordTransaction(items, cents(1000));
       metricsService.recordTransaction(items, cents(1000));
@@ -88,7 +88,7 @@ describe('MetricsService', () => {
 
   describe('transactionsPerMinute', () => {
     it('should calculate TPM based on 5-minute window', () => {
-      const items = [{ sku: 'TEST', name: 'Test', priceInCents: cents(100), quantity: 1 }];
+      const items = [{ id: 'item-1', sku: 'TEST', name: 'Test', priceInCents: cents(100), quantity: 1 }];
 
       // Add 10 transactions
       for (let i = 0; i < 10; i++) {
@@ -101,7 +101,7 @@ describe('MetricsService', () => {
     });
 
     it('should exclude transactions older than 5 minutes from TPM', () => {
-      const items = [{ sku: 'TEST', name: 'Test', priceInCents: cents(100), quantity: 1 }];
+      const items = [{ id: 'item-1', sku: 'TEST', name: 'Test', priceInCents: cents(100), quantity: 1 }];
 
       // Add 5 transactions
       for (let i = 0; i < 5; i++) {
@@ -127,11 +127,11 @@ describe('MetricsService', () => {
   describe('averageCartSize', () => {
     it('should calculate average items per transaction', () => {
       metricsService.recordTransaction(
-        [{ sku: 'A', name: 'A', priceInCents: cents(100), quantity: 3 }],
+        [{ id: 'item-1', sku: 'A', name: 'A', priceInCents: cents(100), quantity: 3 }],
         cents(300)
       );
       metricsService.recordTransaction(
-        [{ sku: 'B', name: 'B', priceInCents: cents(100), quantity: 5 }],
+        [{ id: 'item-2', sku: 'B', name: 'B', priceInCents: cents(100), quantity: 5 }],
         cents(500)
       );
 
@@ -143,7 +143,7 @@ describe('MetricsService', () => {
 
   describe('reset', () => {
     it('should reset all metrics', () => {
-      const items = [{ sku: 'TEST', name: 'Test', priceInCents: cents(100), quantity: 1 }];
+      const items = [{ id: 'item-1', sku: 'TEST', name: 'Test', priceInCents: cents(100), quantity: 1 }];
       metricsService.recordTransaction(items, cents(100));
 
       metricsService.reset();

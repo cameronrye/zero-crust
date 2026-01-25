@@ -42,7 +42,7 @@ export function PaymentActions({
     <div className="p-4 border-t border-slate-700 bg-slate-850">
       {/* Error Message */}
       {isError && errorMessage && (
-        <div className="mb-4 p-3 bg-rose-900/50 border border-rose-700 rounded text-rose-200 text-sm">
+        <div className="mb-4 p-3 bg-rose-900/50 border border-rose-700 rounded text-rose-200 text-sm whitespace-pre-line">
           {errorMessage}
         </div>
       )}

@@ -8,7 +8,7 @@
 import { z } from 'zod';
 
 // Window ID schema
-export const WindowIdSchema = z.enum(['cashier', 'customer']);
+export const WindowIdSchema = z.enum(['cashier', 'customer', 'dashboard']);
 
 // Individual command schemas
 const PingCommandSchema = z.object({

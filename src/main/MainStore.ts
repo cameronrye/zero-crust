@@ -308,8 +308,9 @@ class MainStore {
           draftItem.quantity++;
         }
       } else {
-        // Add new item
+        // Add new item with unique ID for stable React keys
         draft.cart.push({
+          id: randomUUID(),
           sku: product.sku,
           name: product.name,
           priceInCents: product.priceInCents,

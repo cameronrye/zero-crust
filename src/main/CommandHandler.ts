@@ -226,7 +226,9 @@ async function handleProcessPayment(): Promise<CommandResult> {
   } else {
     const errorMessage = paymentResult.errorMessage || 'Payment failed';
     const retryMessage = getRetryMessage(paymentService.getRetryCount());
-    mainStore.handlePaymentFailure(`${errorMessage} ${retryMessage}`);
+    // Separate error and retry messages with newline for better readability
+    const fullMessage = retryMessage ? `${errorMessage}\n${retryMessage}` : errorMessage;
+    mainStore.handlePaymentFailure(fullMessage);
     return { success: false, error: errorMessage };
   }
 }

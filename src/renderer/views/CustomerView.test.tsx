@@ -26,6 +26,7 @@ describe('CustomerView', () => {
     transactionStatus: 'IDLE',
     version: 1,
     retryCount: 0,
+    demoLoopRunning: false,
   };
 
   beforeEach(() => {
@@ -127,7 +128,7 @@ describe('CustomerView', () => {
     const stateWithCart: AppState = {
       ...mockState,
       cart: [
-        { sku: 'PIZZA-001', name: 'Pepperoni Pizza', priceInCents: 1299 as Cents, quantity: 2 },
+        { id: 'cart-item-1', sku: 'PIZZA-001', name: 'Pepperoni Pizza', priceInCents: 1299 as Cents, quantity: 2 },
       ],
       totalInCents: 2598 as Cents,
     };

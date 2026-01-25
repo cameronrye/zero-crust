@@ -142,7 +142,7 @@ describe('ReceiptData interface', () => {
       transactionId: 'TXN-TEST-001',
       timestamp: new Date().toISOString(),
       items: [
-        { sku: 'PIZZA-001', name: 'Pepperoni', priceInCents: cents(599), quantity: 2 },
+        { id: 'cart-item-1', sku: 'PIZZA-001', name: 'Pepperoni', priceInCents: cents(599), quantity: 2 },
       ],
       totalInCents: cents(1198),
     };

@@ -3,20 +3,14 @@
  *
  * Displays transaction history with real-time updates.
  * Receives updates via the same broadcast mechanism as other windows.
- *
- * Window Controls Layout:
- * - macOS: Traffic lights on LEFT (~70px), nothing on right
- * - Windows/Linux: Nothing on left, window controls on RIGHT (~140px)
+ * Wrapped in SectionErrorBoundary for graceful error handling.
  */
 
 import { useState, useEffect } from 'react';
 import type { TransactionRecord } from '@shared/ipc-types';
 import { formatCurrency } from '@shared/currency';
-
-// Platform-specific padding for window controls
-const IS_MAC = navigator.platform.toUpperCase().includes('MAC');
-const LEFT_SAFE_AREA = IS_MAC ? '80px' : '1rem';
-const RIGHT_SAFE_AREA = IS_MAC ? '1rem' : '140px';
+import { SectionErrorBoundary } from '../components';
+import { DRAG_REGION_STYLE } from '../utils/platform';
 
 export default function AdminView() {
   const [transactions, setTransactions] = useState<TransactionRecord[]>([]);
@@ -78,12 +72,7 @@ export default function AdminView() {
       {/* Draggable title bar area for window movement */}
       <div
         className="h-10 bg-slate-900 flex items-center justify-center shrink-0"
-        style={{
-          // @ts-expect-error - WebKit-specific CSS property for Electron
-          WebkitAppRegion: 'drag',
-          paddingLeft: LEFT_SAFE_AREA,
-          paddingRight: RIGHT_SAFE_AREA,
-        }}
+        style={DRAG_REGION_STYLE}
       >
         <span className="text-amber-400/60 text-sm font-medium select-none">
           Transactions ({transactions.length})
@@ -92,7 +81,9 @@ export default function AdminView() {
 
       {/* Transactions Table */}
       <div className="flex-1 overflow-auto p-6">
-        <TransactionsTable transactions={transactions} />
+        <SectionErrorBoundary sectionName="Transactions Table">
+          <TransactionsTable transactions={transactions} />
+        </SectionErrorBoundary>
       </div>
     </div>
   );

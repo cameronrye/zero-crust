@@ -16,25 +16,9 @@ import { createLogger } from './Logger';
 import { mainStore } from './MainStore';
 import { paymentService } from './PaymentService';
 import { generateDemoOrder } from './DemoService';
+import { DEMO_LOOP_TIMING, RETRY_CONFIG } from '@shared/config';
 
 const logger = createLogger('DemoLoopService');
-
-/**
- * Timing configuration for demo loop (in milliseconds)
- * All ranges are [min, max] for random variation
- */
-const TIMING = {
-  /** Delay between adding each item to cart */
-  itemAddDelay: [300, 800] as const,
-  /** Delay after cart is complete before checkout */
-  preCheckoutDelay: [1500, 3000] as const,
-  /** Delay after successful payment before new transaction */
-  postPaymentDelay: [2000, 4000] as const,
-  /** Delay after payment error before retry */
-  retryDelay: [1000, 2000] as const,
-  /** Delay after max retries before starting fresh */
-  errorRecoveryDelay: [2000, 3000] as const,
-} as const;
 
 /**
  * Generate random delay within a range
@@ -123,7 +107,7 @@ class DemoLoopService {
           error: error instanceof Error ? error.message : String(error),
         });
         // Brief pause before retrying
-        await this.sleepUnlessAborted(randomDelay(TIMING.errorRecoveryDelay), signal);
+        await this.sleepUnlessAborted(randomDelay(DEMO_LOOP_TIMING.errorRecoveryDelay), signal);
       }
     }
 
@@ -139,7 +123,7 @@ class DemoLoopService {
     if (signal.aborted) return;
 
     // Step 2: Wait before checkout (simulate cashier verification)
-    await this.sleepUnlessAborted(randomDelay(TIMING.preCheckoutDelay), signal);
+    await this.sleepUnlessAborted(randomDelay(DEMO_LOOP_TIMING.preCheckoutDelay), signal);
     if (signal.aborted) return;
 
     // Step 3: Start checkout
@@ -158,13 +142,13 @@ class DemoLoopService {
     const finalStatus = mainStore.getState().transactionStatus;
     if (finalStatus === 'PAID') {
       // Wait briefly then start new transaction
-      await this.sleepUnlessAborted(randomDelay(TIMING.postPaymentDelay), signal);
+      await this.sleepUnlessAborted(randomDelay(DEMO_LOOP_TIMING.postPaymentDelay), signal);
       if (signal.aborted) return;
       mainStore.resetTransaction();
       paymentService.reset();
     } else {
       // Error state - reset and continue
-      await this.sleepUnlessAborted(randomDelay(TIMING.errorRecoveryDelay), signal);
+      await this.sleepUnlessAborted(randomDelay(DEMO_LOOP_TIMING.errorRecoveryDelay), signal);
       mainStore.cancelCheckout();
       paymentService.reset();
     }
@@ -185,7 +169,7 @@ class DemoLoopService {
     for (const sku of skus) {
       if (signal.aborted) return;
       mainStore.addItem(sku);
-      await this.sleepUnlessAborted(randomDelay(TIMING.itemAddDelay), signal);
+      await this.sleepUnlessAborted(randomDelay(DEMO_LOOP_TIMING.itemAddDelay), signal);
     }
   }
 
@@ -193,7 +177,7 @@ class DemoLoopService {
    * Process payment with automatic retries on failure
    */
   private async processPaymentWithRetries(signal: AbortSignal): Promise<void> {
-    const maxRetries = 3;
+    const maxRetries = RETRY_CONFIG.maxRetries;
     let attempt = 0;
 
     while (attempt < maxRetries && !signal.aborted) {
@@ -230,7 +214,7 @@ class DemoLoopService {
 
       if (attempt < maxRetries && !signal.aborted) {
         // Wait before retry
-        await this.sleepUnlessAborted(randomDelay(TIMING.retryDelay), signal);
+        await this.sleepUnlessAborted(randomDelay(DEMO_LOOP_TIMING.retryDelay), signal);
       }
     }
 

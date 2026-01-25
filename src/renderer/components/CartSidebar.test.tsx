@@ -26,17 +26,19 @@ describe('CartSidebar', () => {
     transactionStatus: 'IDLE',
     version: 1,
     retryCount: 0,
+    demoLoopRunning: false,
   };
 
   const stateWithItems: AppState = {
     cart: [
-      { sku: 'PIZZA-001', name: 'Pepperoni Pizza', priceInCents: 1299 as Cents, quantity: 2 },
-      { sku: 'DRINK-001', name: 'Cola', priceInCents: 199 as Cents, quantity: 1 },
+      { id: 'cart-item-1', sku: 'PIZZA-001', name: 'Pepperoni Pizza', priceInCents: 1299 as Cents, quantity: 2 },
+      { id: 'cart-item-2', sku: 'DRINK-001', name: 'Cola', priceInCents: 199 as Cents, quantity: 1 },
     ],
     totalInCents: 2797 as Cents,
     transactionStatus: 'IDLE',
     version: 1,
     retryCount: 0,
+    demoLoopRunning: false,
   };
 
   it('should render the Current Order header', () => {

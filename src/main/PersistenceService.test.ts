@@ -89,6 +89,7 @@ describe('PersistenceService', () => {
         timestamp: new Date().toISOString(),
         items: [
           {
+            id: 'cart-item-1',
             sku: 'HOT-N-READY',
             name: 'Hot-N-Ready Pepperoni',
             priceInCents: cents(599),

@@ -121,9 +121,8 @@ class MetricsService {
    * Get today's date as a string key (YYYY-MM-DD)
    */
   private getTodayKey(): string {
-    const dateStr = new Date().toISOString().split('T')[0];
-    // ISO string always has a date portion before T
-    return dateStr ?? new Date().toISOString().slice(0, 10);
+    // ISO string format is always YYYY-MM-DDTHH:mm:ss.sssZ, so split always returns date portion
+    return new Date().toISOString().split('T')[0]!;
   }
 
   /**
