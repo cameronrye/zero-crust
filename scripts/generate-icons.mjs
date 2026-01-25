@@ -54,6 +54,8 @@ const ICON_SIZES = {
   icns: [16, 32, 64, 128, 256, 512, 1024],
   // Linux PNG sizes
   png: [16, 32, 48, 64, 128, 256, 512],
+  // Tray icon sizes (menu bar / system tray)
+  tray: [16, 32], // 16x16 standard, 32x32 for @2x Retina
 };
 
 async function main() {
@@ -210,11 +212,17 @@ async function main() {
     fs.rmSync(iconsSubdir, { recursive: true, force: true });
   }
 
+  // Generate tray icons for menu bar / system tray
+  console.log('\n📱 Generating tray icons...\n');
+  await generateTrayIcons(sharp);
+
   console.log('\n✅ Icon generation complete!\n');
   console.log('Generated files:');
   console.log(`  - ${path.join(ASSETS_DIR, 'icon.png')} (Linux)`);
   console.log(`  - ${path.join(ASSETS_DIR, 'icon.ico')} (Windows)`);
   console.log(`  - ${path.join(ASSETS_DIR, 'icon.icns')} (macOS)`);
+  console.log(`  - ${path.join(ASSETS_DIR, 'trayTemplate.png')} (macOS menu bar)`);
+  console.log(`  - ${path.join(ASSETS_DIR, 'trayTemplate@2x.png')} (macOS menu bar Retina)`);
 }
 
 async function generateIconsManually(sharp, tempDir, svgContent) {
@@ -278,6 +286,69 @@ async function generateIconsManually(sharp, tempDir, svgContent) {
     console.log('  ℹ Skipping ICNS generation (not on macOS)');
     console.log('    To generate ICNS, run this script on macOS or use electron-icon-builder');
   }
+}
+
+/**
+ * Generate tray icons for menu bar / system tray
+ *
+ * macOS menu bar icons should be "template images" - monochrome icons that
+ * the system automatically inverts based on the menu bar appearance (light/dark).
+ * The naming convention "Template" in the filename tells Electron to treat it as such.
+ *
+ * Sizes:
+ * - 16x16 for standard displays
+ * - 32x32 (@2x) for Retina displays
+ */
+async function generateTrayIcons(sharp) {
+  // Read the source SVG
+  let svgContent = fs.readFileSync(SOURCE_SVG, 'utf-8');
+
+  // For template images, we need a monochrome icon (black with transparency)
+  // The system will invert it as needed for light/dark mode
+  // Use black (#000000) for the stroke - macOS will handle the rest
+  const templateStrokeColor = '#000000';
+
+  // Replace stroke color for template image
+  svgContent = svgContent.replace(/stroke="#[a-fA-F0-9]{6}"/g, `stroke="${templateStrokeColor}"`);
+
+  // Remove any fill colors and make background transparent
+  svgContent = svgContent.replace(/fill="#[a-fA-F0-9]{6}"/g, 'fill="none"');
+
+  // Add padding for tray icon (smaller padding for small icons)
+  const trayPadding = 10; // percentage
+  const iconSize = 256; // base size for SVG
+  const padding = (iconSize * trayPadding) / 100;
+  const contentSize = iconSize - padding * 2;
+  const scale = contentSize / iconSize;
+
+  // Wrap content in a scaled/translated group for padding (no glow for template)
+  svgContent = svgContent.replace(
+    /<rect width="256" height="256" fill="none"\/>/,
+    `<rect width="256" height="256" fill="none"/><g transform="translate(${padding}, ${padding}) scale(${scale})">`
+  );
+  svgContent = svgContent.replace(/<\/svg>/, '</g></svg>');
+
+  // Generate 16x16 tray icon (standard)
+  const tray16Path = path.join(ASSETS_DIR, 'trayTemplate.png');
+  await sharp(Buffer.from(svgContent))
+    .resize(16, 16, {
+      fit: 'contain',
+      background: { r: 0, g: 0, b: 0, alpha: 0 },
+    })
+    .png()
+    .toFile(tray16Path);
+  console.log('  ✓ Generated trayTemplate.png (16x16)');
+
+  // Generate 32x32 tray icon (@2x for Retina)
+  const tray32Path = path.join(ASSETS_DIR, 'trayTemplate@2x.png');
+  await sharp(Buffer.from(svgContent))
+    .resize(32, 32, {
+      fit: 'contain',
+      background: { r: 0, g: 0, b: 0, alpha: 0 },
+    })
+    .png()
+    .toFile(tray32Path);
+  console.log('  ✓ Generated trayTemplate@2x.png (32x32)');
 }
 
 main().catch((err) => {

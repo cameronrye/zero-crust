@@ -5,12 +5,24 @@ import path from 'node:path';
 // This affects macOS menu bar, dock, and other platform UI elements
 app.setName('Zero Crust');
 
+// =============================================================================
+// GPU Acceleration Handling for Windows
+// =============================================================================
+// Windows can have GPU driver issues that cause white/blank screens.
+// Disable hardware acceleration on Windows to ensure consistent rendering.
+// This must be called before app is ready.
+// =============================================================================
+if (process.platform === 'win32') {
+  app.disableHardwareAcceleration();
+}
+
 import started from 'electron-squirrel-startup';
 import { windowManager } from './main/WindowManager';
 import { initializeIpcHandlers } from './main/IpcHandlers';
 import { initializeSecurityHandlers } from './main/SecurityHandlers';
 import { initializeAutoUpdater, checkForUpdatesManually } from './main/AutoUpdater';
 import { initializeAppMenu } from './main/AppMenu';
+import { trayManager } from './main/TrayManager';
 import { mainStore } from './main/MainStore';
 import { persistenceService } from './main/PersistenceService';
 import { metricsService } from './main/MetricsService';
@@ -199,6 +211,15 @@ app.on('ready', () => {
   // Pass callbacks for menu actions
   initializeAppMenu({
     showWindow: (windowId) => windowManager.showWindow(windowId),
+    clearAllData: clearAllApplicationData,
+    checkForUpdates: checkForUpdatesManually,
+  });
+
+  // Initialize system tray / menu bar icon
+  // Provides quick access to windows and actions from the notification area
+  trayManager.initialize({
+    showWindow: (windowId) => windowManager.showWindow(windowId),
+    showAllWindows: () => windowManager.showAllWindows(),
     clearAllData: clearAllApplicationData,
     checkForUpdates: checkForUpdatesManually,
   });
