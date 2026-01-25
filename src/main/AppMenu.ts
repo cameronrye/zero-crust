@@ -160,9 +160,9 @@ export function initializeAppMenu(callbacks: MenuCallbacks): void {
           click: () => showWindow('customer'),
         },
         {
-          label: 'Show Dashboard',
+          label: 'Show Transactions',
           accelerator: 'CmdOrCtrl+3',
-          click: () => showWindow('dashboard'),
+          click: () => showWindow('transactions'),
         },
         { type: 'separator' as const },
         { role: 'minimize' as const },

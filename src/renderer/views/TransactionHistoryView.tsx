@@ -1,5 +1,5 @@
 /**
- * AdminView - Transactions window for monitoring POS activity
+ * TransactionHistoryView - Transactions window for monitoring POS activity
  *
  * Displays transaction history with real-time updates.
  * Receives updates via the same broadcast mechanism as other windows.
@@ -12,7 +12,7 @@ import { formatCurrency } from '@shared/currency';
 import { SectionErrorBoundary } from '../components';
 import { DRAG_REGION_STYLE } from '../utils/platform';
 
-export default function AdminView() {
+export default function TransactionHistoryView() {
   const [transactions, setTransactions] = useState<TransactionRecord[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -22,9 +22,9 @@ export default function AdminView() {
     // Fetch initial data
     const fetchInitialData = async () => {
       try {
-        console.log('[AdminView] Fetching initial data...');
+        console.log('[TransactionHistoryView] Fetching initial data...');
         const transactionsData = await window.electronAPI.getTransactions();
-        console.log('[AdminView] Received data:', {
+        console.log('[TransactionHistoryView] Received data:', {
           transactionsCount: transactionsData?.length,
           transactionsData: transactionsData?.slice(0, 2), // Log first 2 transactions
         });
@@ -44,7 +44,7 @@ export default function AdminView() {
 
     // Subscribe to push-based updates (no polling needed)
     const unsubscribeTransactions = window.electronAPI.onTransactionsUpdate((newTransactions) => {
-      console.log('[AdminView] Received transactions update:', {
+      console.log('[TransactionHistoryView] Received transactions update:', {
         count: newTransactions?.length,
         sample: newTransactions?.slice(0, 2),
       });

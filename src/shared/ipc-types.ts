@@ -6,7 +6,7 @@
 import type { Cents } from './currency';
 
 // Window identifiers
-export type WindowId = 'cashier' | 'customer' | 'dashboard';
+export type WindowId = 'cashier' | 'customer' | 'transactions';
 
 // Command types - Discriminated union for all IPC commands
 export type Command =
@@ -69,7 +69,7 @@ export interface Metrics {
 }
 
 /**
- * Transaction record for admin dashboard
+ * Transaction record for transaction history view
  */
 export type AdminTransactionStatus = 'pending' | 'completed' | 'voided';
 
@@ -84,7 +84,7 @@ export interface TransactionRecord {
 }
 
 /**
- * Inventory item for admin dashboard
+ * Inventory item for transaction history view
  */
 export interface InventoryItem {
   sku: string;

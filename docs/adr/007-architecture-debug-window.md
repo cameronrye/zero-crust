@@ -21,6 +21,15 @@ Implement an Architecture Debug Window that provides real-time visualization of 
 - Slight increase in bundle size (estimated 50-100KB for visualization libraries)
 - Minimal runtime overhead when window is closed (no active tracing)
 
+## Privacy and Security
+
+This is a demo application with no real customer data. For production considerations:
+
+- Payment amounts shown are simulated demo data
+- No real PII exists in this application
+- For production deployment: implement payload sanitization to redact sensitive fields
+- Architecture window exposes internal state - consider access controls in production
+
 ---
 
 ## Implementation Roadmap
@@ -33,24 +42,39 @@ Implement an Architecture Debug Window that provides real-time visualization of 
 
 1. `src/main/TraceService.ts` - Event collection service
    - TraceEvent interface with id, timestamp, type, source, target, payload, latencyMs
+   - `correlationId` field to link related events (e.g., command_received -> command_processed)
    - Circular buffer for event history (configurable, default 1000 events)
    - Subscribe/unsubscribe pattern for listeners
    - Event emission methods for each trace type
+   - Non-blocking emission: errors are logged but never thrown
 
 2. `src/shared/trace-types.ts` - Shared type definitions
-   - TraceEvent type
+   - TraceEvent type with correlationId for event linking
    - TraceEventType union ('command_received', 'command_processed', 'state_broadcast', 'ipc_send', 'payment_start', 'payment_complete')
    - TraceStats interface for aggregated metrics
 
+```typescript
+interface TraceEvent {
+  id: string;
+  correlationId?: string;  // Links related events (e.g., command flow)
+  timestamp: number;
+  type: TraceEventType;
+  source: string;
+  target?: string;
+  payload?: unknown;
+  latencyMs?: number;
+}
+```
+
 3. New IPC channels in `src/shared/ipc-types.ts`
-   - `pos:trace-event` - Real-time event stream
-   - `pos:get-trace-history` - Fetch historical events
+   - `pos:trace-event` - Real-time event stream (Main -> Renderer)
+   - `pos:get-trace-history` - Fetch historical events with optional pagination
    - `pos:get-trace-stats` - Fetch aggregated statistics
 
-4. Preload API extensions
-   - `onTraceEvent(callback)` - Subscribe to trace events
-   - `getTraceHistory()` - Fetch event buffer
-   - `getTraceStats()` - Fetch current statistics
+4. Preload API extensions (following existing unsubscribe pattern)
+   - `onTraceEvent(callback: (event: TraceEvent) => void): () => void` - Subscribe to trace events, returns unsubscribe function
+   - `getTraceHistory(limit?: number): Promise<TraceEvent[]>` - Fetch event buffer
+   - `getTraceStats(): Promise<TraceStats>` - Fetch current statistics
 
 **Estimated Effort**: 4-6 hours
 
@@ -82,7 +106,15 @@ Implement an Architecture Debug Window that provides real-time visualization of 
    - Emit 'payment_start' and 'payment_complete'
    - Include payment status, duration, retry count
 
-**Design Principle**: Use wrapper functions or middleware pattern to keep instrumentation separate from business logic. Instrumentation should be lightweight and always-on, with minimal overhead when no listeners are subscribed.
+**Design Principle**: Use wrapper functions or middleware pattern to keep instrumentation separate from business logic.
+
+**Clarification on "Always-On" vs "Lazy Activation"**:
+- Instrumentation hooks are always in place (code paths exist)
+- TraceService only serializes and buffers events when there are active subscribers
+- When Architecture window is closed: zero overhead (no listeners = no work)
+- When Architecture window is open: events are captured and streamed
+
+This means the hooks have negligible cost, but actual tracing work only happens on demand.
 
 **Estimated Effort**: 3-4 hours
 
@@ -92,6 +124,12 @@ Implement an Architecture Debug Window that provides real-time visualization of 
 
 **Goal**: Create the React component for visualizing the architecture.
 
+**Prerequisites**: Install required dependencies:
+
+```bash
+pnpm add @xyflow/react @tanstack/react-virtual
+```
+
 **Deliverables**:
 
 1. `src/renderer/views/ArchitectureView.tsx` - Main view component
@@ -99,12 +137,13 @@ Implement an Architecture Debug Window that provides real-time visualization of 
    - Responsive design matching existing theme
 
 2. `src/renderer/components/ArchGraph.tsx` - Node graph visualization
-   - Static node positions for Main, Cashier, Customer, Dashboard
+   - Static node positions for Main Process, Cashier, Customer, Transaction History
    - Use @xyflow/react (React Flow) for rendering
    - Custom node components matching Zero Crust theme
+   - Note: "Main Process" node represents the Electron main process, distinct from the existing "transactions" (TransactionHistoryView) window
 
 3. `src/renderer/components/ArchTimeline.tsx` - Event timeline
-   - Virtualized scrolling list (react-window)
+   - Virtualized scrolling list (@tanstack/react-virtual)
    - Color-coded by event type
    - Expandable rows for payload inspection
    - Filter controls by type/source
@@ -160,21 +199,26 @@ Implement an Architecture Debug Window that provides real-time visualization of 
 
 **Deliverables**:
 
-1. Add 'architecture' to WindowId type
-2. Update WindowManager.openArchitectureWindow()
+1. Add 'architecture' to WindowId type in `src/shared/ipc-types.ts`
+
+2. Update `src/preload.ts` to handle 'architecture' window ID
+   - Add 'architecture' to the valid windowId check in `getWindowIdFromUrl()`
+
+3. Update WindowManager.openArchitectureWindow()
    - Positioned at bottom-left by default
    - Appropriate size (800x600)
    - Available in both development and production
 
-3. Update App.tsx routing
+4. Update App.tsx routing
    - Add case for 'architecture' window ID
+   - Import and render ArchitectureView
 
-4. Menu integration
+5. Menu integration
    - Add "View > Architecture" menu item
    - Keyboard shortcut (Cmd/Ctrl+Shift+A)
    - Available in all builds
 
-5. Dashboard integration
+6. Transaction History integration
    - Button to open Architecture window
    - Quick-access from metrics bar
 
@@ -257,22 +301,25 @@ Implement an Architecture Debug Window that provides real-time visualization of 
 
 ### Library Choices
 
-| Purpose        | Recommended             | Alternatives        |
-| :------------- | :---------------------- | :------------------ |
-| Node Graph     | @xyflow/react           | cytoscape, d3-force |
-| Animations     | framer-motion           | react-spring, CSS   |
-| Virtualization | @tanstack/react-virtual | react-window        |
-| JSON View      | react-json-view         | custom              |
+| Purpose        | Recommended             | Alternatives        | Size (gzipped) |
+| :------------- | :---------------------- | :------------------ | :------------- |
+| Node Graph     | @xyflow/react           | cytoscape, d3-force | ~45KB          |
+| Animations     | framer-motion           | react-spring, CSS   | ~30KB          |
+| Virtualization | @tanstack/react-virtual | react-window        | ~5KB           |
+| JSON View      | react-json-view         | custom              | ~15KB          |
+
+Note: For MVP, consider CSS-only animations to avoid framer-motion dependency initially.
 
 ### Architecture Principles
 
 1. **Separation of Concerns**: TraceService only collects; UI only displays
 2. **Production-Ready**: Feature available in all builds with minimal overhead
-3. **Lazy Activation**: Tracing only active when Architecture window is open
-4. **Non-Blocking**: Trace emission must not slow down main operations
+3. **Lazy Activation**: Instrumentation hooks exist everywhere, but TraceService only serializes/buffers when subscribers are active (Architecture window open)
+4. **Non-Blocking**: Trace emission must not slow down main operations; errors are logged but never thrown
 5. **Memory Bounded**: Circular buffer prevents unbounded growth (max 1000 events)
 6. **Type Safe**: Full TypeScript coverage for trace events
-7. **Privacy Aware**: Sensitive data (if any) redacted from trace payloads
+7. **Privacy Aware**: Demo app has no real PII; production would require payload sanitization
+8. **Event Correlation**: Related events linked via correlationId for tracing command flows
 
 ### File Structure
 
@@ -303,24 +350,42 @@ For a minimal viable demo, implement:
 - Phase 1: TraceService (simplified)
 - Phase 2: Instrument CommandHandler and BroadcastService only
 - Phase 3: Basic ArchitectureView with static graph and timeline
+- Phase 4 Lite: CSS-only edge highlighting (no framer-motion) to show message direction
 - Phase 5: Window integration
 
-**MVP Effort**: ~15-18 hours
+**MVP Effort**: ~16-20 hours
 
 This provides a working demo that shows:
 
-- Live command flow from Cashier to Main
+- Live command flow from Cashier to Main Process
 - State broadcasts to all windows
+- Visual edge highlighting when messages flow (CSS transitions)
 - Event timeline with filtering
 - Basic statistics
 
 The MVP will be production-ready and included in release builds.
 
+**MVP Dependencies** (install before starting):
+
+```bash
+pnpm add @xyflow/react @tanstack/react-virtual
+```
+
 ---
 
 ## Production Considerations
 
-### Performance
+### Performance Targets
+
+| Metric | Target | Notes |
+| :----- | :----- | :---- |
+| Trace emission latency | <1ms per event | Primarily serialization cost |
+| Memory overhead (closed) | <100KB | TraceService instance only |
+| Memory overhead (open) | <500KB | Circular buffer at capacity |
+| CPU overhead (closed) | 0% | No polling, no listeners |
+| Max events/second without UI jank | 100+ | Virtualized list handles volume |
+
+### Performance Details
 
 - **Idle Overhead**: When Architecture window is closed, TraceService has zero active listeners and minimal memory footprint
 - **Active Overhead**: When open, expect <1ms per traced event (primarily serialization)
@@ -328,13 +393,15 @@ The MVP will be production-ready and included in release builds.
 
 ### Bundle Size Impact
 
-| Library                 | Size (gzipped) | Purpose             |
-| :---------------------- | :------------- | :------------------ |
-| @xyflow/react           | ~45KB          | Node graph          |
-| framer-motion           | ~30KB          | Animations          |
-| @tanstack/react-virtual | ~5KB           | List virtualization |
+| Library                 | Size (gzipped) | Purpose             | Required for MVP |
+| :---------------------- | :------------- | :------------------ | :--------------- |
+| @xyflow/react           | ~45KB          | Node graph          | Yes              |
+| @tanstack/react-virtual | ~5KB           | List virtualization | Yes              |
+| framer-motion           | ~30KB          | Animations          | No (Phase 4)     |
+| react-json-view         | ~15KB          | State inspection    | No (Phase 6)     |
 
-**Total**: ~80KB additional bundle size
+**MVP Total**: ~50KB additional bundle size
+**Full Feature Total**: ~95KB additional bundle size
 
 ### User Experience
 

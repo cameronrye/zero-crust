@@ -1,11 +1,11 @@
 /**
- * App - Root component that routes to Cashier, Customer, or Admin view based on window ID
+ * App - Root component that routes to Cashier, Customer, or Transaction History view based on window ID
  */
 
 import { useMemo, useEffect } from 'react';
 import CashierView from './views/CashierView';
 import CustomerView from './views/CustomerView';
-import AdminView from './views/AdminView';
+import TransactionHistoryView from './views/TransactionHistoryView';
 import type { WindowId } from '@shared/ipc-types';
 
 export default function App() {
@@ -27,7 +27,7 @@ export default function App() {
       const titles: Record<WindowId, string> = {
         cashier: 'Cashier',
         customer: 'Customer',
-        dashboard: 'Dashboard',
+        transactions: 'Transaction History',
       };
       document.title = titles[windowId];
     }
@@ -46,8 +46,8 @@ export default function App() {
       return <CashierView />;
     case 'customer':
       return <CustomerView />;
-    case 'dashboard':
-      return <AdminView />;
+    case 'transactions':
+      return <TransactionHistoryView />;
   }
 }
 

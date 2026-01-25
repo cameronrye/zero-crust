@@ -84,14 +84,14 @@ describe('WindowManager', () => {
   });
 
   describe('initializeWindows', () => {
-    it('should create cashier, customer, and dashboard windows', () => {
+    it('should create cashier, customer, and transactions windows', () => {
       testWindowManager.initializeWindows();
 
       const windows = testWindowManager.getAllWindows();
       expect(windows.size).toBe(3);
       expect(testWindowManager.getWindow('cashier')).toBeDefined();
       expect(testWindowManager.getWindow('customer')).toBeDefined();
-      expect(testWindowManager.getWindow('dashboard')).toBeDefined();
+      expect(testWindowManager.getWindow('transactions')).toBeDefined();
     });
   });
 

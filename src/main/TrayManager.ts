@@ -79,7 +79,7 @@ class TrayManager {
     this.updateContextMenu();
 
     // Click handler - show primary windows only if none are visible
-    // Respects manually hidden windows (dashboard, etc.)
+    // Respects manually hidden windows (transactions, etc.)
     this.tray.on('click', () => {
       logger.debug('Tray icon clicked');
       callbacks.showPrimaryWindowsIfNoneVisible();
@@ -119,7 +119,7 @@ class TrayManager {
 
     const cashierVisible = isWindowVisible('cashier');
     const customerVisible = isWindowVisible('customer');
-    const dashboardVisible = isWindowVisible('dashboard');
+    const transactionsVisible = isWindowVisible('transactions');
 
     const template: Electron.MenuItemConstructorOptions[] = [
       {
@@ -150,9 +150,9 @@ class TrayManager {
         },
       },
       {
-        label: dashboardVisible ? 'Hide Dashboard' : 'Show Dashboard',
+        label: transactionsVisible ? 'Hide Transactions' : 'Show Transactions',
         click: () => {
-          toggleWindow('dashboard');
+          toggleWindow('transactions');
           this.updateContextMenu();
         },
       },

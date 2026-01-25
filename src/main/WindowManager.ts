@@ -189,7 +189,7 @@ class WindowManager {
 
   /**
    * Show a specific window (restore if minimized, focus if visible)
-   * For dashboard, creates the window if it doesn't exist
+   * For transactions window, creates the window if it doesn't exist
    */
   public showWindow(windowId: WindowId): void {
     const window = this.windows.get(windowId);
@@ -200,9 +200,9 @@ class WindowManager {
       window.show();
       window.focus();
       logger.info('Window shown', { windowId });
-    } else if (windowId === 'dashboard') {
-      // Dashboard window can be closed, so recreate it if needed
-      this.openDashboardWindow();
+    } else if (windowId === 'transactions') {
+      // Transactions window can be closed, so recreate it if needed
+      this.openTransactionsWindow();
     } else {
       logger.warn('Window not found', { windowId });
     }
@@ -221,7 +221,7 @@ class WindowManager {
     }
 
     // No saved state - show all main windows
-    const windowsToShow = new Set<WindowId>(['cashier', 'customer', 'dashboard'] as WindowId[]);
+    const windowsToShow = new Set<WindowId>(['cashier', 'customer', 'transactions'] as WindowId[]);
 
     for (const [windowId, window] of this.windows) {
       if (windowsToShow.has(windowId)) {
@@ -318,7 +318,7 @@ class WindowManager {
       return;
     }
 
-    // No saved state - show only cashier and customer (not dashboard)
+    // No saved state - show only cashier and customer (not transactions window)
     const primaryWindows: WindowId[] = ['cashier', 'customer'];
     for (const windowId of primaryWindows) {
       const window = this.windows.get(windowId);
@@ -527,8 +527,8 @@ class WindowManager {
     const cashierWindow = this.createWindow(cashierConfig);
     const customerWindow = this.createWindow(customerConfig);
 
-    // Open dashboard window by default
-    this.openDashboardWindow();
+    // Open transactions window by default
+    this.openTransactionsWindow();
 
     // Open DevTools in development
     if (MAIN_WINDOW_VITE_DEV_SERVER_URL) {
@@ -568,53 +568,53 @@ class WindowManager {
   }
 
   /**
-   * Open the dashboard window
+   * Open the transactions window
    * If already open, focuses the existing window
    */
-  public openDashboardWindow(): void {
-    // Check if dashboard window already exists
-    const existingDashboard = this.windows.get('dashboard');
-    if (existingDashboard && !existingDashboard.isDestroyed()) {
-      if (existingDashboard.isMinimized()) {
-        existingDashboard.restore();
+  public openTransactionsWindow(): void {
+    // Check if transactions window already exists
+    const existingTransactions = this.windows.get('transactions');
+    if (existingTransactions && !existingTransactions.isDestroyed()) {
+      if (existingTransactions.isMinimized()) {
+        existingTransactions.restore();
       }
-      existingDashboard.focus();
-      logger.info('Focused existing dashboard window');
+      existingTransactions.focus();
+      logger.info('Focused existing transactions window');
       return;
     }
 
     const primaryDisplay = screen.getPrimaryDisplay();
     const { workArea } = primaryDisplay;
-    // Dashboard is wide and short, positioned at the bottom of the screen
-    const dashboardWidth = Math.min(workArea.width - 40, 1600); // Nearly full width with margin
-    const dashboardHeight = 300;
-    const dashboardPos = getSafeWindowPosition(
+    // Transactions window is wide and short, positioned at the bottom of the screen
+    const transactionsWidth = Math.min(workArea.width - 40, 1600); // Nearly full width with margin
+    const transactionsHeight = 300;
+    const transactionsPos = getSafeWindowPosition(
       primaryDisplay,
-      dashboardWidth,
-      dashboardHeight,
-      workArea.x + Math.floor((workArea.width - dashboardWidth) / 2), // Center horizontally
-      workArea.y + workArea.height - dashboardHeight - 20 // Position at bottom with margin
+      transactionsWidth,
+      transactionsHeight,
+      workArea.x + Math.floor((workArea.width - transactionsWidth) / 2), // Center horizontally
+      workArea.y + workArea.height - transactionsHeight - 20 // Position at bottom with margin
     );
 
-    const dashboardConfig: WindowConfig = {
-      id: 'dashboard',
-      title: 'Transactions',
-      width: dashboardWidth,
-      height: dashboardHeight,
-      ...dashboardPos,
+    const transactionsConfig: WindowConfig = {
+      id: 'transactions',
+      title: 'Transaction History',
+      width: transactionsWidth,
+      height: transactionsHeight,
+      ...transactionsPos,
       showMenu: false, // Hide menu bar on Windows/Linux
     };
 
-    const dashboardWindow = this.createWindow(dashboardConfig);
+    const transactionsWindow = this.createWindow(transactionsConfig);
 
-    // Dashboard window can be closed normally (not minimized)
-    dashboardWindow.removeAllListeners('close');
-    dashboardWindow.on('closed', () => {
-      logger.info('Dashboard window closed');
-      this.windows.delete('dashboard');
+    // Transactions window can be closed normally (not minimized)
+    transactionsWindow.removeAllListeners('close');
+    transactionsWindow.on('closed', () => {
+      logger.info('Transactions window closed');
+      this.windows.delete('transactions');
     });
 
-    logger.info('Dashboard window opened', { windowId: dashboardWindow.id });
+    logger.info('Transactions window opened', { windowId: transactionsWindow.id });
   }
 
   /**

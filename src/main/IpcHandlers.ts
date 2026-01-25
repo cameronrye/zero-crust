@@ -109,7 +109,7 @@ export function initializeIpcHandlers(): void {
     return metricsService.getMetrics();
   });
 
-  // Handle transactions request (for admin dashboard)
+  // Handle transactions request (for transaction history view)
   ipcMain.handle(IPC_CHANNELS.GET_TRANSACTIONS, async (event) => {
     // Security: Validate sender is from trusted source
     if (!validateSender(event.senderFrame)) {
@@ -123,7 +123,7 @@ export function initializeIpcHandlers(): void {
     return persistenceService.getTransactions();
   });
 
-  // Handle inventory request (for admin dashboard)
+  // Handle inventory request (for transaction history view)
   ipcMain.handle(IPC_CHANNELS.GET_INVENTORY, async (event) => {
     // Security: Validate sender is from trusted source
     if (!validateSender(event.senderFrame)) {
@@ -137,7 +137,7 @@ export function initializeIpcHandlers(): void {
     return mainStore.getAllInventory();
   });
 
-  // Handle show receipt request (from dashboard)
+  // Handle show receipt request (from transaction history view)
   ipcMain.handle(IPC_CHANNELS.SHOW_RECEIPT, async (event, transactionId: string) => {
     // Security: Validate sender is from trusted source
     if (!validateSender(event.senderFrame)) {

@@ -21,7 +21,7 @@ import { IPC_CHANNELS } from '@shared/ipc-types';
 function getWindowIdFromUrl(): WindowId {
   const params = new URLSearchParams(window.location.search);
   const windowId = params.get('windowId');
-  if (windowId === 'cashier' || windowId === 'customer' || windowId === 'dashboard') {
+  if (windowId === 'cashier' || windowId === 'customer' || windowId === 'transactions') {
     return windowId;
   }
   // Default to cashier if not specified
@@ -143,21 +143,21 @@ const electronAPI: ElectronAPI = {
   },
 
   /**
-   * Get all transactions from the audit log (for admin dashboard)
+   * Get all transactions from the audit log (for transaction history view)
    */
   getTransactions: async (): Promise<TransactionRecord[]> => {
     return ipcRenderer.invoke(IPC_CHANNELS.GET_TRANSACTIONS);
   },
 
   /**
-   * Get current inventory state (for admin dashboard)
+   * Get current inventory state (for transaction history view)
    */
   getInventory: async (): Promise<InventoryItem[]> => {
     return ipcRenderer.invoke(IPC_CHANNELS.GET_INVENTORY);
   },
 
   /**
-   * Show receipt window for a transaction (from dashboard)
+   * Show receipt window for a transaction (from transaction history view)
    */
   showReceipt: async (transactionId: string): Promise<void> => {
     return ipcRenderer.invoke(IPC_CHANNELS.SHOW_RECEIPT, transactionId);

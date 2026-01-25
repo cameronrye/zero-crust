@@ -181,7 +181,7 @@ class MainStore {
   }
 
   /**
-   * Broadcast current transactions to all windows (for admin dashboard)
+   * Broadcast current transactions to all windows (for transaction history view)
    */
   private broadcastTransactionsUpdate(): void {
     const transactions = persistenceService.getTransactions();
@@ -189,7 +189,7 @@ class MainStore {
   }
 
   /**
-   * Broadcast current inventory to all windows (for admin dashboard)
+   * Broadcast current inventory to all windows (for transaction history view)
    */
   private broadcastInventoryUpdate(): void {
     const inventory = this.getAllInventory();
@@ -502,7 +502,7 @@ class MainStore {
   }
 
   /**
-   * Get all inventory items with product details (for admin dashboard)
+   * Get all inventory items with product details (for transaction history view)
    */
   public getAllInventory(): InventoryItem[] {
     const items: InventoryItem[] = [];
@@ -554,7 +554,7 @@ class MainStore {
       };
       persistenceService.appendTransaction(pendingTransaction);
 
-      // Broadcast transaction update to admin dashboard
+      // Broadcast transaction update to transaction history view
       this.broadcastTransactionsUpdate();
     }
 
@@ -615,7 +615,7 @@ class MainStore {
     // Record transaction in metrics
     metricsService.recordTransaction(transactionItems, transactionTotal);
 
-    // Broadcast updates to admin dashboard
+    // Broadcast updates to transaction history view
     this.broadcastTransactionsUpdate();
     this.broadcastInventoryUpdate();
 
@@ -654,7 +654,7 @@ class MainStore {
         lastError: errorMessage,
       });
 
-      // Broadcast transaction update to admin dashboard
+      // Broadcast transaction update to transaction history view
       this.broadcastTransactionsUpdate();
     }
 
