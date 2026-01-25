@@ -204,17 +204,10 @@ jobs:
             SHA512_BASE64=$(echo -n "$SHA512" | xxd -r -p | base64 -w0 2>/dev/null || echo -n "$SHA512" | xxd -r -p | base64)
             RELEASE_DATE=$(date -u +"%Y-%m-%dT%H:%M:%S.000Z")
 
-            # Generate latest.yml
-            cat > artifacts/latest.yml << EOF
-version: ${VERSION}
-files:
-  - url: ${FILENAME}
-    sha512: ${SHA512_BASE64}
-    size: ${FILESIZE}
-path: ${FILENAME}
-sha512: ${SHA512_BASE64}
-releaseDate: '${RELEASE_DATE}'
-EOF
+            # Generate latest.yml using printf to avoid heredoc parsing issues
+            printf 'version: %s\nfiles:\n  - url: %s\n    sha512: %s\n    size: %s\npath: %s\nsha512: %s\nreleaseDate: '\''%s'\''\n' \
+              "$VERSION" "$FILENAME" "$SHA512_BASE64" "$FILESIZE" "$FILENAME" "$SHA512_BASE64" "$RELEASE_DATE" \
+              > artifacts/latest.yml
 
             echo "Generated latest.yml:"
             cat artifacts/latest.yml
