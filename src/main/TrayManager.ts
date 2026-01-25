@@ -8,47 +8,33 @@
  */
 
 import { Tray, Menu, nativeImage, app } from 'electron';
-import path from 'node:path';
 import { createLogger } from './Logger';
+import { getTrayIconPath, getAssetPath } from './assetPath';
 import type { WindowId } from '@shared/ipc-types';
 
 const logger = createLogger('TrayManager');
 
 // Callback types for tray menu actions
-type ShowWindowCallback = (windowId: WindowId) => void;
+type ToggleWindowCallback = (windowId: WindowId) => void;
 type ClearAllDataCallback = () => Promise<void>;
 type CheckForUpdatesCallback = () => Promise<void>;
+type IsWindowVisibleCallback = (windowId: WindowId) => boolean;
+type HasVisibleWindowsCallback = () => boolean;
 
 export interface TrayCallbacks {
-  showWindow: ShowWindowCallback;
+  toggleWindow: ToggleWindowCallback;
+  toggleAllWindows: () => void;
   showAllWindows: () => void;
+  showPrimaryWindowsIfNoneVisible: () => void;
+  isWindowVisible: IsWindowVisibleCallback;
+  hasVisibleWindows: HasVisibleWindowsCallback;
   clearAllData: ClearAllDataCallback;
   checkForUpdates: CheckForUpdatesCallback;
 }
 
 class TrayManager {
   private tray: Tray | null = null;
-
-  /**
-   * Get the appropriate icon path based on platform
-   * - macOS: Uses template images that adapt to light/dark mode
-   * - Windows: Uses ICO format for best quality
-   * - Linux: Uses PNG format
-   */
-  private getIconPath(): string {
-    const assetsPath = path.join(__dirname, '../../assets');
-
-    if (process.platform === 'darwin') {
-      // macOS: Use template image (automatically adapts to menu bar appearance)
-      return path.join(assetsPath, 'trayTemplate.png');
-    } else if (process.platform === 'win32') {
-      // Windows: Use ICO format
-      return path.join(assetsPath, 'icon.ico');
-    } else {
-      // Linux: Use PNG
-      return path.join(assetsPath, 'icon.png');
-    }
-  }
+  private callbacks: TrayCallbacks | null = null;
 
   /**
    * Create the tray icon with context menu
@@ -59,13 +45,15 @@ class TrayManager {
       return;
     }
 
-    const iconPath = this.getIconPath();
+    this.callbacks = callbacks;
+
+    const iconPath = getTrayIconPath();
     let icon = nativeImage.createFromPath(iconPath);
 
     // Fallback to main icon if tray-specific icon doesn't exist
     if (icon.isEmpty()) {
       logger.warn('Tray icon not found, falling back to main icon', { iconPath });
-      const fallbackPath = path.join(__dirname, '../../assets/icon.png');
+      const fallbackPath = getAssetPath('icon.png');
       icon = nativeImage.createFromPath(fallbackPath);
 
       // Resize for tray (16x16 is standard)
@@ -85,55 +73,88 @@ class TrayManager {
     }
 
     this.tray = new Tray(icon);
-    this.tray.setToolTip('Zero Crust POS');
+    this.tray.setToolTip('Zero Crust');
 
-    // Build context menu
-    const contextMenu = this.buildContextMenu(callbacks);
-    this.tray.setContextMenu(contextMenu);
+    // Build initial context menu
+    this.updateContextMenu();
 
-    // Click handler - show all windows
+    // Click handler - show primary windows only if none are visible
+    // Respects manually hidden windows (dashboard, etc.)
     this.tray.on('click', () => {
       logger.debug('Tray icon clicked');
-      callbacks.showAllWindows();
+      callbacks.showPrimaryWindowsIfNoneVisible();
+      this.updateContextMenu();
     });
 
-    // Double-click handler (Windows/macOS) - show all windows
+    // Double-click handler (Windows/macOS) - same behavior as click
     this.tray.on('double-click', () => {
       logger.debug('Tray icon double-clicked');
-      callbacks.showAllWindows();
+      callbacks.showPrimaryWindowsIfNoneVisible();
+      this.updateContextMenu();
     });
 
     logger.info('Tray initialized', { platform: process.platform });
   }
 
   /**
-   * Build the context menu for the tray icon
+   * Update the context menu based on current window visibility
+   * Call this whenever window visibility changes
+   */
+  public updateContextMenu(): void {
+    if (!this.tray || !this.callbacks) return;
+
+    const contextMenu = this.buildContextMenu(this.callbacks);
+    this.tray.setContextMenu(contextMenu);
+  }
+
+  /**
+   * Build the context menu for the tray icon with dynamic show/hide labels
    */
   private buildContextMenu(callbacks: TrayCallbacks): Menu {
-    const { showWindow, showAllWindows, clearAllData, checkForUpdates } = callbacks;
+    const { toggleWindow, toggleAllWindows, isWindowVisible, hasVisibleWindows, clearAllData, checkForUpdates } = callbacks;
+
+    // Determine labels based on current visibility
+    const anyVisible = hasVisibleWindows();
+    const allWindowsLabel = anyVisible ? 'Hide All Windows' : 'Show All Windows';
+
+    const cashierVisible = isWindowVisible('cashier');
+    const customerVisible = isWindowVisible('customer');
+    const dashboardVisible = isWindowVisible('dashboard');
 
     const template: Electron.MenuItemConstructorOptions[] = [
       {
-        label: 'Zero Crust POS',
+        label: 'Zero Crust',
         enabled: false,
       },
       { type: 'separator' },
       {
-        label: 'Show All Windows',
-        click: () => showAllWindows(),
+        label: allWindowsLabel,
+        click: () => {
+          toggleAllWindows();
+          this.updateContextMenu();
+        },
       },
       { type: 'separator' },
       {
-        label: 'Show Cashier',
-        click: () => showWindow('cashier'),
+        label: cashierVisible ? 'Hide Cashier' : 'Show Cashier',
+        click: () => {
+          toggleWindow('cashier');
+          this.updateContextMenu();
+        },
       },
       {
-        label: 'Show Customer Display',
-        click: () => showWindow('customer'),
+        label: customerVisible ? 'Hide Customer Display' : 'Show Customer Display',
+        click: () => {
+          toggleWindow('customer');
+          this.updateContextMenu();
+        },
       },
       {
-        label: 'Show Dashboard',
-        click: () => showWindow('dashboard'),
+        label: dashboardVisible ? 'Hide Dashboard' : 'Show Dashboard',
+        click: () => {
+          toggleWindow('dashboard');
+          this.updateContextMenu();
+        },
       },
       { type: 'separator' },
       {
@@ -161,6 +182,7 @@ class TrayManager {
     if (this.tray) {
       this.tray.destroy();
       this.tray = null;
+      this.callbacks = null;
       logger.info('Tray destroyed');
     }
   }

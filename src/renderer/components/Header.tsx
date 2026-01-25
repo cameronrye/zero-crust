@@ -49,7 +49,7 @@ export function Header({ transactionStatus, isLocked, onDemoOrder }: HeaderProps
       }}
     >
       {/* App title - visible on macOS where traffic lights are on the left */}
-      <h1 className="text-lg font-bold text-amber-400 select-none">Zero Crust POS</h1>
+      <h1 className="text-lg font-bold text-amber-400 select-none">Zero Crust</h1>
 
       {/* Controls - must be non-draggable */}
       <div

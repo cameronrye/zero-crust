@@ -8,6 +8,7 @@
 import { BrowserWindow, screen } from 'electron';
 import path from 'node:path';
 import { createLogger } from './Logger';
+import { getAppIconPath } from './assetPath';
 import type { WindowId, CartItem } from '@shared/ipc-types';
 import type { Cents } from '@shared/currency';
 import { formatCurrency, multiplyCents } from '@shared/currency';
@@ -54,6 +55,14 @@ function getSafeWindowPosition(
 
 class WindowManager {
   private windows: Map<WindowId, BrowserWindow> = new Map();
+  private receiptWindows: Set<BrowserWindow> = new Set();
+  // Track the last focused window (for restoring z-order)
+  private lastFocusedWindow: BrowserWindow | null = null;
+  // Track which window should be focused when restoring
+  private windowToFocusOnRestore: BrowserWindow | null = null;
+  // Track which windows were visible before "Hide All" was called
+  private hiddenWindowState: Set<WindowId> = new Set();
+  private hiddenReceiptWindows: Set<BrowserWindow> = new Set();
 
   /**
    * Create a window with secure settings
@@ -67,22 +76,17 @@ class WindowManager {
       x: config.x,
       y: config.y,
       title: config.title,
+      // Window icon - important for Windows taskbar visibility
+      icon: getAppIconPath(),
       // Background color shown before content loads - matches app theme
       backgroundColor: '#0f172a', // slate-900
-      // Custom title bar: Remove default title bar for themed window chrome
-      titleBarStyle: 'hidden',
-      // macOS: Position traffic light controls
+      // macOS: Custom title bar with traffic light controls
       ...(process.platform === 'darwin' && {
+        titleBarStyle: 'hidden' as const,
         trafficLightPosition: { x: 16, y: 12 },
       }),
-      // Windows/Linux: Themed window controls overlay
-      ...(process.platform !== 'darwin' && {
-        titleBarOverlay: {
-          color: '#1e293b', // slate-800 - matches header background
-          symbolColor: '#fbbf24', // amber-400 - matches theme accent
-          height: 40,
-        },
-      }),
+      // Windows/Linux: Use standard frame to avoid blank window issues
+      // titleBarOverlay can cause rendering problems on some Windows systems
       webPreferences: {
         preload: path.join(__dirname, 'preload.js'),
         // Security: Enable context isolation to prevent renderer access to Node
@@ -153,6 +157,15 @@ class WindowManager {
     window.on('closed', () => {
       logger.info('Window closed', { windowId: config.id });
       this.windows.delete(config.id);
+      // Clear last focused if this window was it
+      if (this.lastFocusedWindow === window) {
+        this.lastFocusedWindow = null;
+      }
+    });
+
+    // Track focus for z-order preservation
+    window.on('focus', () => {
+      this.lastFocusedWindow = window;
     });
 
     return window;
@@ -187,16 +200,120 @@ class WindowManager {
   }
 
   /**
-   * Show all windows (used when app is activated with no visible windows)
+   * Show all windows that were previously visible before hideAllWindows was called.
+   * Restores the previously focused window to the top.
+   * If no state was saved, shows all main windows.
    */
   public showAllWindows(): void {
-    for (const [windowId, window] of this.windows) {
-      if (window.isMinimized()) {
-        window.restore();
-      }
-      window.show();
-      logger.info('Window shown', { windowId });
+    // If we have saved state, restore those windows
+    if (this.hiddenWindowState.size > 0 || this.hiddenReceiptWindows.size > 0) {
+      this.restoreWindowsWithFocus();
+      return;
     }
+
+    // No saved state - show all main windows
+    const windowsToShow = new Set<WindowId>(['cashier', 'customer', 'dashboard'] as WindowId[]);
+
+    for (const [windowId, window] of this.windows) {
+      if (windowsToShow.has(windowId)) {
+        if (window.isMinimized()) {
+          window.restore();
+        }
+        window.show();
+        logger.info('Window shown', { windowId });
+      }
+    }
+
+    // Focus the cashier window
+    const cashier = this.windows.get('cashier');
+    if (cashier) {
+      cashier.focus();
+    }
+  }
+
+  /**
+   * Restore windows and bring the previously focused window to the top
+   */
+  private restoreWindowsWithFocus(): void {
+    // First, show all main windows that were visible
+    for (const windowId of this.hiddenWindowState) {
+      const window = this.windows.get(windowId);
+      if (window && !window.isDestroyed()) {
+        if (window.isMinimized()) {
+          window.restore();
+        }
+        window.show();
+        logger.info('Window restored', { windowId });
+      }
+    }
+
+    // Show all receipt windows that were visible
+    for (const receiptWindow of this.hiddenReceiptWindows) {
+      if (!receiptWindow.isDestroyed()) {
+        receiptWindow.show();
+        logger.info('Receipt window restored');
+      }
+    }
+
+    // Bring the previously focused window to the top using moveTop() and focus()
+    if (this.windowToFocusOnRestore && !this.windowToFocusOnRestore.isDestroyed()) {
+      this.windowToFocusOnRestore.moveTop();
+      this.windowToFocusOnRestore.focus();
+      logger.debug('Restored focus to previously focused window');
+    } else {
+      // Fallback: focus the cashier window
+      const cashier = this.windows.get('cashier');
+      if (cashier && !cashier.isDestroyed()) {
+        cashier.focus();
+      }
+    }
+
+    // Clear the saved state
+    this.hiddenWindowState.clear();
+    this.hiddenReceiptWindows.clear();
+    this.windowToFocusOnRestore = null;
+  }
+
+  /**
+   * Show windows when tray icon is clicked.
+   * If windows were hidden via "Hide All", restore those exact windows with focus.
+   * If no saved state, show primary windows (cashier + customer).
+   * If windows are already visible, just focus the cashier.
+   */
+  public showPrimaryWindowsIfNoneVisible(): void {
+    // If any windows are already visible, just focus the cashier
+    if (this.hasVisibleWindows()) {
+      const cashier = this.windows.get('cashier');
+      if (cashier && this.isWindowVisible('cashier')) {
+        cashier.focus();
+        logger.debug('Focused existing visible cashier window');
+      }
+      return;
+    }
+
+    // If we have saved state from "Hide All", restore those windows with focus
+    if (this.hiddenWindowState.size > 0 || this.hiddenReceiptWindows.size > 0) {
+      logger.debug('Restoring previously hidden windows', {
+        mainWindowCount: this.hiddenWindowState.size,
+        receiptCount: this.hiddenReceiptWindows.size,
+      });
+      this.restoreWindowsWithFocus();
+      return;
+    }
+
+    // No saved state - show only cashier and customer (not dashboard)
+    const primaryWindows: WindowId[] = ['cashier', 'customer'];
+    for (const windowId of primaryWindows) {
+      const window = this.windows.get(windowId);
+      if (window) {
+        if (window.isMinimized()) {
+          window.restore();
+        }
+        window.show();
+        logger.info('Window shown', { windowId });
+      }
+    }
+
     // Focus the cashier window
     const cashier = this.windows.get('cashier');
     if (cashier) {
@@ -214,6 +331,91 @@ class WindowManager {
       }
     }
     return false;
+  }
+
+  /**
+   * Check if a specific window is visible
+   */
+  public isWindowVisible(windowId: WindowId): boolean {
+    const window = this.windows.get(windowId);
+    if (!window) return false;
+    return !window.isMinimized() && window.isVisible();
+  }
+
+  /**
+   * Hide a specific window
+   */
+  public hideWindow(windowId: WindowId): void {
+    const window = this.windows.get(windowId);
+    if (window) {
+      window.hide();
+      logger.info('Window hidden', { windowId });
+    } else {
+      logger.warn('Window not found for hiding', { windowId });
+    }
+  }
+
+  /**
+   * Hide all windows (including receipt windows)
+   * Remembers which windows were visible and which was focused so they can be restored
+   */
+  public hideAllWindows(): void {
+    // Save which window was focused before hiding (for z-order restoration)
+    this.windowToFocusOnRestore = this.lastFocusedWindow;
+
+    // Clear previous state
+    this.hiddenWindowState.clear();
+    this.hiddenReceiptWindows.clear();
+
+    // Hide main windows and track which were visible
+    for (const [windowId, window] of this.windows) {
+      if (!window.isDestroyed()) {
+        if (this.isWindowVisible(windowId)) {
+          this.hiddenWindowState.add(windowId);
+        }
+        window.hide();
+        logger.info('Window hidden', { windowId });
+      }
+    }
+
+    // Hide receipt windows and track which were visible
+    for (const receiptWindow of this.receiptWindows) {
+      if (!receiptWindow.isDestroyed()) {
+        if (receiptWindow.isVisible()) {
+          this.hiddenReceiptWindows.add(receiptWindow);
+        }
+        receiptWindow.hide();
+        logger.info('Receipt window hidden');
+      }
+    }
+
+    logger.debug('Saved hidden window state', {
+      mainWindows: Array.from(this.hiddenWindowState),
+      receiptCount: this.hiddenReceiptWindows.size,
+      windowToFocus: this.windowToFocusOnRestore ? 'saved' : 'none',
+    });
+  }
+
+  /**
+   * Toggle visibility of a specific window
+   */
+  public toggleWindow(windowId: WindowId): void {
+    if (this.isWindowVisible(windowId)) {
+      this.hideWindow(windowId);
+    } else {
+      this.showWindow(windowId);
+    }
+  }
+
+  /**
+   * Toggle visibility of all windows
+   */
+  public toggleAllWindows(): void {
+    if (this.hasVisibleWindows()) {
+      this.hideAllWindows();
+    } else {
+      this.showAllWindows();
+    }
   }
 
   /**
@@ -379,7 +581,7 @@ class WindowManager {
 
     const dashboardConfig: WindowConfig = {
       id: 'dashboard',
-      title: 'Zero Crust POS - Dashboard',
+      title: 'Transactions',
       width: dashboardWidth,
       height: dashboardHeight,
       ...dashboardPos,
@@ -420,21 +622,14 @@ class WindowManager {
       height: receiptHeight,
       ...receiptPos,
       title: `Receipt - ${data.transactionId}`,
+      icon: getAppIconPath(),
       movable: true,
-      // Custom title bar: Match main windows
-      titleBarStyle: 'hidden',
-      // macOS: Position traffic light controls
+      // macOS: Custom title bar with traffic light controls
       ...(process.platform === 'darwin' && {
+        titleBarStyle: 'hidden' as const,
         trafficLightPosition: { x: 16, y: 12 },
       }),
-      // Windows/Linux: Themed window controls overlay
-      ...(process.platform !== 'darwin' && {
-        titleBarOverlay: {
-          color: '#f5f5f5', // Light background for receipt
-          symbolColor: '#333333',
-          height: 40,
-        },
-      }),
+      // Windows/Linux: Use standard frame to avoid blank window issues
       webPreferences: {
         contextIsolation: true,
         nodeIntegration: false,
@@ -443,6 +638,24 @@ class WindowManager {
         allowRunningInsecureContent: false,
         experimentalFeatures: false,
       },
+    });
+
+    // Track the receipt window
+    this.receiptWindows.add(receiptWindow);
+
+    // Remove from tracking when closed
+    receiptWindow.on('closed', () => {
+      this.receiptWindows.delete(receiptWindow);
+      // Clear last focused if this window was it
+      if (this.lastFocusedWindow === receiptWindow) {
+        this.lastFocusedWindow = null;
+      }
+      logger.debug('Receipt window removed from tracking', { transactionId: data.transactionId });
+    });
+
+    // Track focus for z-order preservation
+    receiptWindow.on('focus', () => {
+      this.lastFocusedWindow = receiptWindow;
     });
 
     // Generate and load the receipt HTML

@@ -17,9 +17,11 @@ const config: ForgeConfig = {
     name: 'Zero Crust',
     executableName: 'zero-crust',
     appBundleId: 'com.zerocrust.app',
-    appCopyright: `Copyright ${new Date().getFullYear()} Zero Crust`,
+    appCopyright: 'Copyright 2026 Zero Crust',
     // App icon - electron-forge will use the appropriate format per platform
     icon: path.resolve(__dirname, 'assets/icon'),
+    // Include assets folder in the packaged app (outside ASAR for native access)
+    extraResource: [path.resolve(__dirname, 'assets')],
     // macOS specific
     appCategoryType: 'public.app-category.business',
 
@@ -131,8 +133,9 @@ const config: ForgeConfig = {
       [FuseV1Options.EnableEmbeddedAsarIntegrityValidation]: true,
       // Security: Only load app from ASAR (prevent tampering)
       [FuseV1Options.OnlyLoadAppFromAsar]: true,
-      // Security: Restrict file:// protocol privileges
-      [FuseV1Options.GrantFileProtocolExtraPrivileges]: false,
+      // Allow file:// protocol to execute scripts (required for production builds)
+      // When false, scripts loaded via loadFile() may fail to execute
+      [FuseV1Options.GrantFileProtocolExtraPrivileges]: true,
     }),
   ],
   // ==========================================================================

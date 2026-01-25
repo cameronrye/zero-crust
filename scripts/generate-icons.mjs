@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * Icon Generation Script for Zero Crust POS
+ * Icon Generation Script for Zero Crust
  *
  * Converts the source SVG to all required icon formats for Electron:
  * - macOS: .icns (512x512 and 1024x1024 for Retina)
@@ -59,7 +59,7 @@ const ICON_SIZES = {
 };
 
 async function main() {
-  console.log('🍕 Zero Crust Icon Generator\n');
+  console.log('Zero Crust Icon Generator\n');
   console.log(`  Source: ${SOURCE_SVG}`);
   console.log(`  Background: ${BACKGROUND_COLOR}`);
   console.log(`  Stroke: ${STROKE_COLOR}`);
@@ -68,7 +68,7 @@ async function main() {
 
   // Check if source SVG exists
   if (!fs.existsSync(SOURCE_SVG)) {
-    console.error(`❌ Source SVG not found: ${SOURCE_SVG}`);
+    console.error(`Source SVG not found: ${SOURCE_SVG}`);
     process.exit(1);
   }
 
@@ -77,7 +77,7 @@ async function main() {
   try {
     sharp = (await import('sharp')).default;
   } catch {
-    console.error('❌ sharp is not installed. Run: pnpm add -D sharp');
+    console.error('sharp is not installed. Run: pnpm add -D sharp');
     process.exit(1);
   }
 
@@ -352,7 +352,7 @@ async function generateTrayIcons(sharp) {
 }
 
 main().catch((err) => {
-  console.error('❌ Error:', err.message);
+  console.error('Error:', err.message);
   process.exit(1);
 });
 

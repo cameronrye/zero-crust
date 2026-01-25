@@ -1,5 +1,4 @@
 import { app, BrowserWindow, dialog, nativeImage, session } from 'electron';
-import path from 'node:path';
 
 // Set app name immediately - must be done before app is ready
 // This affects macOS menu bar, dock, and other platform UI elements
@@ -27,6 +26,7 @@ import { mainStore } from './main/MainStore';
 import { persistenceService } from './main/PersistenceService';
 import { metricsService } from './main/MetricsService';
 import { rootLogger } from './main/Logger';
+import { getAssetPath } from './main/assetPath';
 
 const logger = rootLogger.child('Main');
 
@@ -185,14 +185,14 @@ app.on('ready', () => {
   logger.info('Application ready, initializing');
 
   // Configure the About panel with custom icon and version
-  const iconPath = path.join(__dirname, '../../assets/icon.png');
+  const iconPath = getAssetPath('icon.png');
   const icon = nativeImage.createFromPath(iconPath);
 
   app.setAboutPanelOptions({
     applicationName: 'Zero Crust',
     applicationVersion: app.getVersion(),
     version: '', // Hide build number on macOS
-    copyright: 'Copyright 2024 Cameron Rye',
+    copyright: 'Copyright 2026 Cameron Rye',
     ...(!icon.isEmpty() ? { iconPath } : {}),
   });
 
@@ -218,8 +218,12 @@ app.on('ready', () => {
   // Initialize system tray / menu bar icon
   // Provides quick access to windows and actions from the notification area
   trayManager.initialize({
-    showWindow: (windowId) => windowManager.showWindow(windowId),
+    toggleWindow: (windowId) => windowManager.toggleWindow(windowId),
+    toggleAllWindows: () => windowManager.toggleAllWindows(),
     showAllWindows: () => windowManager.showAllWindows(),
+    showPrimaryWindowsIfNoneVisible: () => windowManager.showPrimaryWindowsIfNoneVisible(),
+    isWindowVisible: (windowId) => windowManager.isWindowVisible(windowId),
+    hasVisibleWindows: () => windowManager.hasVisibleWindows(),
     clearAllData: clearAllApplicationData,
     checkForUpdates: checkForUpdatesManually,
   });
