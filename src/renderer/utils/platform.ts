@@ -33,7 +33,7 @@ export const IS_LINUX = typeof navigator !== 'undefined'
  *
  * These values provide padding to avoid overlapping with:
  * - macOS: Traffic light buttons (close, minimize, maximize) on the left
- * - Windows/Linux: Window control buttons on the right
+ * - Windows/Linux: Standard window frame (no overlay controls in content area)
  */
 export const WINDOW_SAFE_AREAS = {
   /**
@@ -43,10 +43,11 @@ export const WINDOW_SAFE_AREAS = {
   left: IS_MAC ? '80px' : '1rem',
 
   /**
-   * Right safe area - space for Windows/Linux window controls
-   * 1rem on macOS, 140px on other platforms for close/min/max buttons
+   * Right safe area - standard padding on all platforms
+   * Windows/Linux use standard window frames, not custom title bar overlay,
+   * so no extra padding is needed for window controls
    */
-  right: IS_MAC ? '1rem' : '140px',
+  right: '1rem',
 } as const;
 
 /**

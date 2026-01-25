@@ -8,6 +8,7 @@ import { FusesPlugin } from '@electron-forge/plugin-fuses';
 import { FuseV1Options, FuseVersion } from '@electron/fuses';
 import { PublisherGithub } from '@electron-forge/publisher-github';
 import path from 'node:path';
+import fs from 'node:fs';
 import 'dotenv/config';
 
 const config: ForgeConfig = {
@@ -162,6 +163,45 @@ const config: ForgeConfig = {
       generateReleaseNotes: true,
     }),
   ],
+  // ==========================================================================
+  // Hooks Configuration
+  // ==========================================================================
+  // Post-package hook to generate app-update.yml for electron-updater.
+  // electron-updater requires this file to know where to check for updates.
+  // ==========================================================================
+  hooks: {
+    postPackage: async (_config, options) => {
+      // Generate app-update.yml for electron-updater
+      // This file tells electron-updater where to check for updates
+      const appUpdateYml = `provider: github
+owner: cameronrye
+repo: zero-crust
+updaterCacheDirName: zero-crust-updater
+`;
+
+      for (const outputPath of options.outputPaths) {
+        let resourcesPath: string;
+
+        if (options.platform === 'darwin') {
+          // macOS: Contents/Resources/app-update.yml
+          resourcesPath = path.join(outputPath, 'Contents', 'Resources');
+        } else {
+          // Windows/Linux: resources/app-update.yml
+          resourcesPath = path.join(outputPath, 'resources');
+        }
+
+        const appUpdatePath = path.join(resourcesPath, 'app-update.yml');
+
+        // Ensure resources directory exists
+        if (fs.existsSync(resourcesPath)) {
+          fs.writeFileSync(appUpdatePath, appUpdateYml, 'utf-8');
+          console.log(`Generated app-update.yml at: ${appUpdatePath}`);
+        } else {
+          console.warn(`Resources path not found: ${resourcesPath}`);
+        }
+      }
+    },
+  },
 };
 
 export default config;

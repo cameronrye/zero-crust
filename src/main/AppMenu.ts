@@ -183,7 +183,7 @@ export function initializeAppMenu(callbacks: MenuCallbacks): void {
         {
           label: 'Learn More',
           click: async () => {
-            await shell.openExternal('https://github.com/example/zero-crust');
+            await shell.openExternal('https://github.com/cameronrye/zero-crust');
           },
         },
       ],

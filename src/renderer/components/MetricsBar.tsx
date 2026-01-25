@@ -18,10 +18,10 @@ import { formatCurrency } from '@shared/currency';
 
 // Platform-specific padding for window controls
 // macOS: ~70px for traffic lights on the left
-// Windows/Linux: ~140px for window controls on the right (handled via env())
+// Windows/Linux: Standard window frame (no overlay controls in content area)
 const IS_MAC = navigator.platform.toUpperCase().includes('MAC');
 const LEFT_SAFE_AREA = IS_MAC ? '80px' : '1.5rem';
-const RIGHT_SAFE_AREA = IS_MAC ? '1rem' : '140px';
+const RIGHT_SAFE_AREA = '1rem';
 
 interface MetricsBarProps {
   metrics: Metrics;

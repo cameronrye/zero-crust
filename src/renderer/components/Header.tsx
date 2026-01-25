@@ -14,9 +14,11 @@
 import type { TransactionStatus } from '@shared/ipc-types';
 
 // Platform-specific padding for window controls
+// macOS uses custom title bar with traffic lights on left
+// Windows/Linux use standard window frame (no overlay controls in content area)
 const IS_MAC = navigator.platform.toUpperCase().includes('MAC');
 const LEFT_SAFE_AREA = IS_MAC ? '80px' : '1.5rem';
-const RIGHT_SAFE_AREA = IS_MAC ? '1.5rem' : '140px';
+const RIGHT_SAFE_AREA = '1.5rem';
 
 const STATUS_COLORS: Record<TransactionStatus, string> = {
   IDLE: 'bg-emerald-500',
