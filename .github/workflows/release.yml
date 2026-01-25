@@ -19,6 +19,8 @@ on:
   push:
     tags:
       - 'v*'
+    branches:
+      - 'v*'
   workflow_dispatch:
     inputs:
       dry_run:
