@@ -67,6 +67,8 @@ class WindowManager {
       x: config.x,
       y: config.y,
       title: config.title,
+      // Background color shown before content loads - matches app theme
+      backgroundColor: '#0f172a', // slate-900
       // Custom title bar: Remove default title bar for themed window chrome
       titleBarStyle: 'hidden',
       // macOS: Position traffic light controls
@@ -96,6 +98,21 @@ class WindowManager {
         // Security: Disable experimental features
         experimentalFeatures: false,
       },
+    });
+
+    // Handle load failures - log for debugging production issues
+    window.webContents.on('did-fail-load', (_event, errorCode, errorDescription, validatedURL) => {
+      logger.error('Window failed to load', {
+        windowId: config.id,
+        errorCode,
+        errorDescription,
+        validatedURL,
+      });
+    });
+
+    // Log when page finishes loading
+    window.webContents.on('did-finish-load', () => {
+      logger.info('Window finished loading', { windowId: config.id });
     });
 
     // Pass window ID to renderer via URL hash or query parameter

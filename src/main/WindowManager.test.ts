@@ -23,6 +23,7 @@ vi.mock('electron', () => {
       webContents: {
         send: vi.fn(),
         openDevTools: vi.fn(),
+        on: vi.fn(),
       },
       loadURL: vi.fn().mockResolvedValue(undefined),
       loadFile: vi.fn().mockResolvedValue(undefined),
