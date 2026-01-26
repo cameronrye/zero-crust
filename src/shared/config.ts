@@ -8,6 +8,13 @@
  */
 
 /**
+ * Environment configuration.
+ * These are determined at build time and safe to use in both main and renderer processes.
+ */
+export const IS_DEVELOPMENT = process.env.NODE_ENV === 'development';
+export const IS_PRODUCTION = process.env.NODE_ENV === 'production';
+
+/**
  * Payment gateway configuration
  */
 export const PAYMENT_CONFIG = {
@@ -39,6 +46,18 @@ export const METRICS_CONFIG = {
   maxDetailedTransactions: 1000,
   /** Number of transactions to compact when memory limit is reached */
   compactionBatchSize: 200,
+} as const;
+
+/**
+ * Persistence service configuration
+ */
+export const PERSISTENCE_CONFIG = {
+  /** Maximum number of transactions to keep in the active store */
+  maxTransactions: 10000,
+  /** Number of days to retain transactions before archival */
+  retentionDays: 30,
+  /** Number of transactions to archive when limit is reached */
+  archiveBatchSize: 1000,
 } as const;
 
 /**

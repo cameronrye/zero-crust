@@ -25,6 +25,7 @@ import { trayManager } from './main/TrayManager';
 import { mainStore } from './main/MainStore';
 import { persistenceService } from './main/PersistenceService';
 import { metricsService } from './main/MetricsService';
+import { traceService } from './main/TraceService';
 import { rootLogger } from './main/Logger';
 import { getAssetPath } from './main/assetPath';
 
@@ -246,6 +247,8 @@ app.on('before-quit', () => {
   logger.info('Application shutting down, cleaning up...');
   // Allow windows to close during quit
   windowManager.setQuitting(true);
+  // Dispose TraceService to clean up pending timeouts
+  traceService.dispose();
   mainStore.shutdown();
 });
 

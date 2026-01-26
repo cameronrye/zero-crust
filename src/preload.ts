@@ -16,12 +16,18 @@ import type {
   InventoryItem,
 } from '@shared/ipc-types';
 import { IPC_CHANNELS } from '@shared/ipc-types';
+import type { TraceEvent, TraceStats } from '@shared/trace-types';
 
 // Get window ID from URL query parameter (set by WindowManager)
 function getWindowIdFromUrl(): WindowId {
   const params = new URLSearchParams(window.location.search);
   const windowId = params.get('windowId');
-  if (windowId === 'cashier' || windowId === 'customer' || windowId === 'transactions') {
+  if (
+    windowId === 'cashier' ||
+    windowId === 'customer' ||
+    windowId === 'transactions' ||
+    windowId === 'debugger'
+  ) {
     return windowId;
   }
   // Default to cashier if not specified
@@ -161,6 +167,54 @@ const electronAPI: ElectronAPI = {
    */
   showReceipt: async (transactionId: string): Promise<void> => {
     return ipcRenderer.invoke(IPC_CHANNELS.SHOW_RECEIPT, transactionId);
+  },
+
+  // Trace API (for Architecture Debug Window)
+
+  /**
+   * Subscribe to trace events from Main process
+   * Returns an unsubscribe function
+   */
+  onTraceEvent: (callback: (event: TraceEvent) => void): (() => void) => {
+    const handler = (_event: Electron.IpcRendererEvent, traceEvent: TraceEvent) => {
+      callback(traceEvent);
+    };
+    ipcRenderer.on(IPC_CHANNELS.TRACE_EVENT, handler);
+
+    // Return cleanup function
+    return () => {
+      ipcRenderer.removeListener(IPC_CHANNELS.TRACE_EVENT, handler);
+    };
+  },
+
+  /**
+   * Subscribe to trace stats updates from Main process (push-based)
+   * Returns an unsubscribe function
+   */
+  onTraceStats: (callback: (stats: TraceStats) => void): (() => void) => {
+    const handler = (_event: Electron.IpcRendererEvent, stats: TraceStats) => {
+      callback(stats);
+    };
+    ipcRenderer.on(IPC_CHANNELS.TRACE_STATS_UPDATE, handler);
+
+    // Return cleanup function
+    return () => {
+      ipcRenderer.removeListener(IPC_CHANNELS.TRACE_STATS_UPDATE, handler);
+    };
+  },
+
+  /**
+   * Get trace event history from Main process
+   */
+  getTraceHistory: async (limit?: number): Promise<TraceEvent[]> => {
+    return ipcRenderer.invoke(IPC_CHANNELS.GET_TRACE_HISTORY, { limit });
+  },
+
+  /**
+   * Get aggregated trace statistics from Main process
+   */
+  getTraceStats: async (): Promise<TraceStats> => {
+    return ipcRenderer.invoke(IPC_CHANNELS.GET_TRACE_STATS);
   },
 };
 

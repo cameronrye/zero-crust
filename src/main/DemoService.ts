@@ -73,6 +73,7 @@ function selectWeightedPattern(): OrderPattern {
 
 /**
  * Generate SKUs for a specific order pattern
+ * Returns empty array if required categories are empty
  */
 function generateOrderForPattern(pattern: OrderPattern): string[] {
   const pizzas = getProductsByCategory('pizza');
@@ -80,19 +81,37 @@ function generateOrderForPattern(pattern: OrderPattern): string[] {
   const drinks = getProductsByCategory('drinks');
   const skus: string[] = [];
 
+  // Validate required categories are not empty before proceeding
+  // This prevents runtime errors if catalog is misconfigured
+  if (pizzas.length === 0) {
+    logger.warn('Cannot generate demo order: no pizzas in catalog');
+    return [];
+  }
+
   switch (pattern) {
     case 'combo':
       // 1 pizza + 1 side + 1 drink
-      skus.push(randomFrom(pizzas).sku);
-      skus.push(randomFrom(sides).sku);
-      skus.push(randomFrom(drinks).sku);
+      // Fallback to pizza_only if sides or drinks are empty
+      if (sides.length === 0 || drinks.length === 0) {
+        logger.warn('Combo pattern missing sides or drinks, falling back to pizza only');
+        skus.push(randomFrom(pizzas).sku);
+      } else {
+        skus.push(randomFrom(pizzas).sku);
+        skus.push(randomFrom(sides).sku);
+        skus.push(randomFrom(drinks).sku);
+      }
       break;
 
     case 'family':
       // 2-3 pizzas + 1-2 sides + 2-4 drinks
       addMultiple(skus, pizzas, randomBetween(2, 3));
-      addMultiple(skus, sides, randomBetween(1, 2));
-      addMultiple(skus, drinks, randomBetween(2, 4));
+      // Only add sides and drinks if they exist
+      if (sides.length > 0) {
+        addMultiple(skus, sides, randomBetween(1, 2));
+      }
+      if (drinks.length > 0) {
+        addMultiple(skus, drinks, randomBetween(2, 4));
+      }
       break;
 
     case 'double':
@@ -104,6 +123,10 @@ function generateOrderForPattern(pattern: OrderPattern): string[] {
     case 'single': {
       // Random single item from any category
       const allProducts = [...pizzas, ...sides, ...drinks];
+      if (allProducts.length === 0) {
+        logger.warn('No products available for single item order');
+        return [];
+      }
       skus.push(randomFrom(allProducts).sku);
       break;
     }

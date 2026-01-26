@@ -29,3 +29,117 @@
 [style*="WebkitAppRegion: drag"] {
   user-select: none;
 }
+
+/*
+ * Architecture Debug Window Animations
+ */
+
+/* Pulse animation for sending nodes (blue glow) */
+@keyframes arch-pulse-send {
+  0% {
+    transform: scale(1);
+    box-shadow: 0 0 0 rgba(59, 130, 246, 0);
+  }
+  50% {
+    transform: scale(1.08);
+    box-shadow: 0 0 20px rgba(59, 130, 246, 0.6);
+  }
+  100% {
+    transform: scale(1);
+    box-shadow: 0 0 0 rgba(59, 130, 246, 0);
+  }
+}
+
+/* Pulse animation for receiving nodes (green glow) */
+@keyframes arch-pulse-receive {
+  0% {
+    transform: scale(1);
+    box-shadow: 0 0 0 rgba(16, 185, 129, 0);
+  }
+  50% {
+    transform: scale(1.08);
+    box-shadow: 0 0 20px rgba(16, 185, 129, 0.6);
+  }
+  100% {
+    transform: scale(1);
+    box-shadow: 0 0 0 rgba(16, 185, 129, 0);
+  }
+}
+
+/* Pulse animation for payment events (purple glow) */
+@keyframes arch-pulse-payment {
+  0% {
+    transform: scale(1);
+    box-shadow: 0 0 0 rgba(168, 85, 247, 0);
+  }
+  50% {
+    transform: scale(1.08);
+    box-shadow: 0 0 20px rgba(168, 85, 247, 0.6);
+  }
+  100% {
+    transform: scale(1);
+    box-shadow: 0 0 0 rgba(168, 85, 247, 0);
+  }
+}
+
+.animate-pulse-send {
+  animation: arch-pulse-send 0.3s ease-out;
+}
+
+.animate-pulse-receive {
+  animation: arch-pulse-receive 0.3s ease-out;
+}
+
+.animate-pulse-payment {
+  animation: arch-pulse-payment 0.4s ease-out;
+}
+
+/* Pulse animation for error events (red glow) */
+@keyframes arch-pulse-error {
+  0% {
+    transform: scale(1);
+    box-shadow: 0 0 0 rgba(239, 68, 68, 0);
+  }
+  25% {
+    transform: scale(1.12);
+    box-shadow: 0 0 25px rgba(239, 68, 68, 0.8);
+  }
+  50% {
+    transform: scale(1.08);
+    box-shadow: 0 0 15px rgba(239, 68, 68, 0.6);
+  }
+  75% {
+    transform: scale(1.1);
+    box-shadow: 0 0 20px rgba(239, 68, 68, 0.7);
+  }
+  100% {
+    transform: scale(1);
+    box-shadow: 0 0 0 rgba(239, 68, 68, 0);
+  }
+}
+
+.animate-pulse-error {
+  animation: arch-pulse-error 0.5s ease-out;
+}
+
+/* Edge flash animation */
+@keyframes arch-edge-flash {
+  0% {
+    stroke-opacity: 0.3;
+    stroke-width: 2;
+  }
+  30% {
+    stroke-opacity: 1;
+    stroke-width: 4;
+  }
+  100% {
+    stroke-opacity: 0.3;
+    stroke-width: 2;
+  }
+}
+
+/* Inactive node styling */
+.arch-node-inactive {
+  opacity: 0.4;
+  filter: grayscale(50%);
+}

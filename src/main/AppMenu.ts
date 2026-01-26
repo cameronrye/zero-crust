@@ -164,6 +164,11 @@ export function initializeAppMenu(callbacks: MenuCallbacks): void {
           accelerator: 'CmdOrCtrl+3',
           click: () => showWindow('transactions'),
         },
+        {
+          label: 'Show Debugger',
+          accelerator: 'CmdOrCtrl+4',
+          click: () => showWindow('debugger'),
+        },
         { type: 'separator' as const },
         { role: 'minimize' as const },
         { role: 'zoom' as const },

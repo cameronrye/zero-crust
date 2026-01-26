@@ -15,6 +15,7 @@ import { IPC_CHANNELS } from '@shared/ipc-types';
 vi.mock('./WindowManager', () => ({
   windowManager: {
     broadcast: vi.fn(),
+    getAllWindows: vi.fn().mockReturnValue(new Map()),
   },
 }));
 
@@ -83,6 +84,7 @@ describe('BroadcastService', () => {
         totalInCents: cents(100),
         transactionStatus: 'IDLE' as const,
         retryCount: 0,
+        demoLoopRunning: false,
       };
 
       // subscribeCallback is guaranteed to be defined due to the expect above

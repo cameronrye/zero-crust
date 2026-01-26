@@ -13,6 +13,7 @@ import { windowManager } from './WindowManager';
 import { paymentService, getRetryMessage } from './PaymentService';
 import { generateDemoOrder } from './DemoService';
 import { demoLoopService } from './DemoLoopService';
+import { traceService } from './TraceService';
 import type { WindowId } from '@shared/ipc-types';
 import { IPC_CHANNELS } from '@shared/ipc-types';
 import type { ValidatedCommand } from '@shared/schemas';
@@ -50,60 +51,92 @@ export interface CommandResult {
  */
 export async function handleCommand(
   command: ValidatedCommand,
-  sourceWindow: WindowId | 'unknown'
+  sourceWindow: WindowId | 'unknown',
+  correlationId?: string
 ): Promise<CommandResult> {
+  const startTime = Date.now();
+
   logger.info('Handling command', {
     type: command.type,
     source: sourceWindow,
   });
 
+  let result: CommandResult;
+
   switch (command.type) {
     case 'PING':
-      return handlePing(command.payload);
+      result = await handlePing(command.payload);
+      break;
 
     case 'ADD_ITEM':
-      return handleAddItem(command.payload);
+      result = handleAddItem(command.payload);
+      break;
 
     case 'REMOVE_ITEM':
-      return handleRemoveItem(command.payload);
+      result = handleRemoveItem(command.payload);
+      break;
 
     case 'UPDATE_QUANTITY':
-      return handleUpdateQuantity(command.payload);
+      result = handleUpdateQuantity(command.payload);
+      break;
 
     case 'CLEAR_CART':
-      return handleClearCart();
+      result = handleClearCart();
+      break;
 
     case 'CHECKOUT':
-      return handleCheckout();
+      result = handleCheckout();
+      break;
 
     case 'CANCEL_CHECKOUT':
-      return handleCancelCheckout();
+      result = handleCancelCheckout();
+      break;
 
     case 'PROCESS_PAYMENT':
-      return handleProcessPayment();
+      result = await handleProcessPayment();
+      break;
 
     case 'RETRY_PAYMENT':
-      return handleRetryPayment();
+      result = await handleRetryPayment();
+      break;
 
     case 'NEW_TRANSACTION':
-      return handleNewTransaction();
+      result = handleNewTransaction();
+      break;
 
     case 'DEMO_ORDER':
-      return handleDemoOrder();
+      result = handleDemoOrder();
+      break;
 
     case 'START_DEMO_LOOP':
-      return handleStartDemoLoop();
+      result = handleStartDemoLoop();
+      break;
 
     case 'STOP_DEMO_LOOP':
-      return handleStopDemoLoop();
+      result = handleStopDemoLoop();
+      break;
 
     default: {
       // TypeScript exhaustiveness check
       const _exhaustiveCheck: never = command;
       logger.error('Unknown command type', { command: _exhaustiveCheck });
-      return { success: false, error: 'Unknown command type' };
+      result = { success: false, error: 'Unknown command type' };
     }
   }
+
+  // Emit trace event for command processing
+  const latencyMs = Date.now() - startTime;
+  traceService.emit('command_processed', 'main', {
+    correlationId,
+    payload: {
+      commandType: command.type,
+      success: result.success,
+      error: result.error,
+    },
+    latencyMs,
+  });
+
+  return result;
 }
 
 /**

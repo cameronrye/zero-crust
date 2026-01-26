@@ -6,7 +6,7 @@
 import type { Cents } from './currency';
 
 // Window identifiers
-export type WindowId = 'cashier' | 'customer' | 'transactions';
+export type WindowId = 'cashier' | 'customer' | 'transactions' | 'debugger';
 
 // Command types - Discriminated union for all IPC commands
 export type Command =
@@ -102,13 +102,20 @@ export const IPC_CHANNELS = {
   GET_TRANSACTIONS: 'pos:get-transactions',
   GET_INVENTORY: 'pos:get-inventory',
   SHOW_RECEIPT: 'pos:show-receipt',
+  GET_TRACE_HISTORY: 'pos:get-trace-history',
+  GET_TRACE_STATS: 'pos:get-trace-stats',
   // Main -> Renderer
   STATE_UPDATE: 'pos:state-update',
   METRICS_UPDATE: 'pos:metrics-update',
   TRANSACTIONS_UPDATE: 'pos:transactions-update',
   INVENTORY_UPDATE: 'pos:inventory-update',
   PONG: 'pos:pong',
+  TRACE_EVENT: 'pos:trace-event',
+  TRACE_STATS_UPDATE: 'pos:trace-stats-update',
 } as const;
+
+// Re-export trace types for convenience
+export type { TraceEvent, TraceStats, TraceHistoryOptions } from './trace-types';
 
 // API exposed to renderer via contextBridge
 export interface ElectronAPI {
@@ -124,6 +131,15 @@ export interface ElectronAPI {
   getTransactions: () => Promise<TransactionRecord[]>;
   getInventory: () => Promise<InventoryItem[]>;
   showReceipt: (transactionId: string) => Promise<void>;
+  // Trace API (for Architecture Debug Window)
+  onTraceEvent: (
+    callback: (event: import('./trace-types').TraceEvent) => void
+  ) => () => void;
+  onTraceStats: (
+    callback: (stats: import('./trace-types').TraceStats) => void
+  ) => () => void;
+  getTraceHistory: (limit?: number) => Promise<import('./trace-types').TraceEvent[]>;
+  getTraceStats: () => Promise<import('./trace-types').TraceStats>;
 }
 
 // Extend Window interface for TypeScript

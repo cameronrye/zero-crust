@@ -6,6 +6,7 @@ import { useMemo, useEffect } from 'react';
 import CashierView from './views/CashierView';
 import CustomerView from './views/CustomerView';
 import TransactionHistoryView from './views/TransactionHistoryView';
+import ArchitectureView from './views/ArchitectureView';
 import type { WindowId } from '@shared/ipc-types';
 
 export default function App() {
@@ -28,6 +29,7 @@ export default function App() {
         cashier: 'Cashier',
         customer: 'Customer',
         transactions: 'Transaction History',
+        debugger: 'Debugger',
       };
       document.title = titles[windowId];
     }
@@ -48,6 +50,8 @@ export default function App() {
       return <CustomerView />;
     case 'transactions':
       return <TransactionHistoryView />;
+    case 'debugger':
+      return <ArchitectureView />;
   }
 }
 

@@ -6,6 +6,7 @@
  */
 
 import { Component, type ReactNode, type ErrorInfo } from 'react';
+import { IS_DEVELOPMENT } from '@shared/config';
 
 /**
  * Error handler callback for external error reporting integration.
@@ -78,7 +79,7 @@ export class ErrorBoundary extends Component<Props, State> {
               An unexpected error occurred. Click the button below to reload.
             </p>
 
-            {process.env.NODE_ENV === 'development' && this.state.error && (
+            {IS_DEVELOPMENT && this.state.error && (
               <div className="mb-6 p-4 bg-slate-900 rounded-lg text-left overflow-auto max-h-32">
                 <code className="text-xs text-rose-400 font-mono">
                   {this.state.error.message}

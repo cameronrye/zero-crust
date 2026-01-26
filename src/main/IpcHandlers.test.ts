@@ -124,7 +124,7 @@ describe('IpcHandlers', () => {
 
       await commandHandler!(mockEvent, validCommand);
 
-      expect(handleCommand).toHaveBeenCalledWith(validCommand, expect.any(String));
+      expect(handleCommand).toHaveBeenCalledWith(validCommand, expect.any(String), expect.any(String));
     });
 
     it('should reject invalid commands', async () => {

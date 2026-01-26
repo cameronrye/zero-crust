@@ -9,6 +9,7 @@
  */
 
 import { createLogger } from './Logger';
+import { traceService, generateCorrelationId } from './TraceService';
 import type { Cents } from '@shared/currency';
 import { PAYMENT_CONFIG, RETRY_CONFIG } from '@shared/config';
 
@@ -211,6 +212,9 @@ export async function processPayment(request: PaymentRequest): Promise<PaymentRe
  * Provides a stateful wrapper around the payment processing functions,
  * tracking retry counts and preventing concurrent payment attempts.
  *
+ * Uses a Promise-based lock pattern to prevent race conditions in
+ * concurrent payment processing attempts.
+ *
  * @example
  * const result = await paymentService.process({
  *   amountInCents: 1999 as Cents,
@@ -224,7 +228,11 @@ export async function processPayment(request: PaymentRequest): Promise<PaymentRe
  */
 class PaymentService {
   private currentRetryCount: number = 0;
-  private isProcessing: boolean = false;
+  /**
+   * Promise-based lock to prevent race conditions.
+   * If non-null, a payment is currently being processed.
+   */
+  private activePaymentPromise: Promise<PaymentResult> | null = null;
 
   /**
    * Get the current number of retry attempts made.
@@ -243,7 +251,7 @@ class PaymentService {
    * @returns True if a payment is in progress, false otherwise
    */
   public isPaymentProcessing(): boolean {
-    return this.isProcessing;
+    return this.activePaymentPromise !== null;
   }
 
   /**
@@ -289,7 +297,10 @@ class PaymentService {
    * }
    */
   public async process(request: PaymentRequest): Promise<PaymentResult> {
-    if (this.isProcessing) {
+    // Promise-based lock: check if a payment is already in progress
+    // This prevents race conditions where two calls could pass the check
+    // before either sets the lock
+    if (this.activePaymentPromise !== null) {
       logger.warn('Payment already in progress');
       return {
         success: false,
@@ -298,25 +309,65 @@ class PaymentService {
       };
     }
 
-    this.isProcessing = true;
+    // Create the payment promise and store it as the lock
+    this.activePaymentPromise = this.doProcessPayment(request);
 
     try {
-      const result = await processPayment({
-        ...request,
-        retryCount: this.currentRetryCount,
-      });
-
-      if (result.success) {
-        // Reset retry count on successful payment
-        this.currentRetryCount = 0;
-      } else {
-        this.currentRetryCount++;
-      }
-
-      return result;
+      return await this.activePaymentPromise;
     } finally {
-      this.isProcessing = false;
+      // Release the lock when done (success or failure)
+      this.activePaymentPromise = null;
     }
+  }
+
+  /**
+   * Internal method that performs the actual payment processing.
+   * Called by process() after acquiring the lock.
+   */
+  private async doProcessPayment(request: PaymentRequest): Promise<PaymentResult> {
+    const startTime = Date.now();
+    const correlationId = generateCorrelationId();
+
+    // Emit trace event for payment start (main -> gateway)
+    traceService.emit('payment_start', 'main', {
+      target: 'gateway',
+      correlationId,
+      payload: {
+        transactionId: request.transactionId,
+        amountInCents: request.amountInCents,
+        retryCount: this.currentRetryCount,
+      },
+    });
+
+    const result = await processPayment({
+      ...request,
+      retryCount: this.currentRetryCount,
+    });
+
+    const latencyMs = Date.now() - startTime;
+
+    if (result.success) {
+      // Reset retry count on successful payment
+      this.currentRetryCount = 0;
+    } else {
+      this.currentRetryCount++;
+    }
+
+    // Emit trace event for payment complete (gateway -> main)
+    traceService.emit('payment_complete', 'gateway', {
+      target: 'main',
+      correlationId,
+      latencyMs,
+      payload: {
+        transactionId: request.transactionId,
+        success: result.success,
+        errorCode: result.errorCode,
+        paymentId: result.transactionId,
+        retryCount: this.currentRetryCount,
+      },
+    });
+
+    return result;
   }
 
   /**
@@ -327,7 +378,8 @@ class PaymentService {
    */
   public reset(): void {
     this.currentRetryCount = 0;
-    this.isProcessing = false;
+    // Note: We don't clear activePaymentPromise here as that could cause
+    // issues with in-flight payments. The promise will naturally resolve.
     logger.debug('PaymentService reset');
   }
 }

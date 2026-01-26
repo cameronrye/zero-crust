@@ -13,6 +13,7 @@
 import { createLogger } from './Logger';
 import { mainStore } from './MainStore';
 import { windowManager } from './WindowManager';
+import { traceService } from './TraceService';
 import type { AppState, Metrics, TransactionRecord, InventoryItem } from '@shared/ipc-types';
 import { IPC_CHANNELS } from '@shared/ipc-types';
 
@@ -27,11 +28,25 @@ export function initializeBroadcastService(): void {
 
   // Subscribe to state changes
   mainStore.subscribe((state: AppState) => {
+    const windowCount = windowManager.getAllWindows().size;
+
     logger.debug('Broadcasting state update', {
       version: state.version,
       cartItems: state.cart.length,
       totalInCents: state.totalInCents,
       status: state.transactionStatus,
+    });
+
+    // Emit trace event for state broadcast
+    traceService.emit('state_broadcast', 'main', {
+      target: 'all',
+      payload: {
+        version: state.version,
+        cartSize: state.cart.length,
+        totalInCents: state.totalInCents,
+        transactionStatus: state.transactionStatus,
+        targetWindowCount: windowCount,
+      },
     });
 
     // Broadcast to all windows via WindowManager

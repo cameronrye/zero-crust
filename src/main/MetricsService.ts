@@ -41,11 +41,12 @@ interface TransactionMetric {
 
 /**
  * Summarized metrics for older transactions that have been compacted
+ * Uses Cents type for totalRevenue to maintain type safety and prevent precision loss
  */
 interface SummarizedMetrics {
   transactionCount: number;
   totalItemCount: number;
-  totalRevenue: number;
+  totalRevenue: Cents;
 }
 
 /**
@@ -57,7 +58,7 @@ class MetricsService {
   // All transactions today (reset at midnight)
   private todayTransactions: TransactionMetric[] = [];
   // Summarized metrics for older compacted transactions
-  private summarizedMetrics: SummarizedMetrics = { transactionCount: 0, totalItemCount: 0, totalRevenue: 0 };
+  private summarizedMetrics: SummarizedMetrics = { transactionCount: 0, totalItemCount: 0, totalRevenue: 0 as Cents };
   // Track current day for reset
   private currentDay: string;
 
@@ -118,11 +119,15 @@ class MetricsService {
   }
 
   /**
-   * Get today's date as a string key (YYYY-MM-DD)
+   * Get today's date as a string key (YYYY-MM-DD) in local timezone.
+   * Uses local date to ensure daily metrics reset at local midnight, not UTC midnight.
    */
   private getTodayKey(): string {
-    // ISO string format is always YYYY-MM-DDTHH:mm:ss.sssZ, so split always returns date portion
-    return new Date().toISOString().split('T')[0]!;
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = String(now.getMonth() + 1).padStart(2, '0');
+    const day = String(now.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
   }
 
   /**
@@ -136,7 +141,7 @@ class MetricsService {
         newDay: today,
       });
       this.todayTransactions = [];
-      this.summarizedMetrics = { transactionCount: 0, totalItemCount: 0, totalRevenue: 0 };
+      this.summarizedMetrics = { transactionCount: 0, totalItemCount: 0, totalRevenue: 0 as Cents };
       this.currentDay = today;
     }
   }
@@ -156,11 +161,13 @@ class MetricsService {
 
     const compactedCount = toCompact.length;
     const compactedItems = toCompact.reduce((sum, t) => sum + t.itemCount, 0);
-    const compactedRevenue = toCompact.reduce((sum, t) => sum + t.totalInCents, 0);
+    // Cast to Cents to maintain type safety - reduce produces a number but we know it's cents
+    const compactedRevenue = toCompact.reduce((sum, t) => sum + t.totalInCents, 0) as Cents;
 
     this.summarizedMetrics.transactionCount += compactedCount;
     this.summarizedMetrics.totalItemCount += compactedItems;
-    this.summarizedMetrics.totalRevenue += compactedRevenue;
+    // Use addCents for type-safe addition of branded Cents values
+    this.summarizedMetrics.totalRevenue = (this.summarizedMetrics.totalRevenue + compactedRevenue) as Cents;
 
     logger.debug('Compacted old transactions', {
       compactedCount,
@@ -286,7 +293,7 @@ class MetricsService {
   public reset(): void {
     this.recentTransactions = [];
     this.todayTransactions = [];
-    this.summarizedMetrics = { transactionCount: 0, totalItemCount: 0, totalRevenue: 0 };
+    this.summarizedMetrics = { transactionCount: 0, totalItemCount: 0, totalRevenue: 0 as Cents };
     this.currentDay = this.getTodayKey();
     logger.debug('MetricsService reset');
   }

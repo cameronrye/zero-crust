@@ -15,6 +15,7 @@
 import Store from 'electron-store';
 import { createLogger } from './Logger';
 import type { AdminTransactionStatus, TransactionRecord } from '@shared/ipc-types';
+import { PERSISTENCE_CONFIG } from '@shared/config';
 
 const logger = createLogger('PersistenceService');
 
@@ -35,12 +36,25 @@ export interface PersistedInventory {
 }
 
 /**
+ * Archived transactions metadata
+ */
+export interface ArchivedTransactionsInfo {
+  /** Total count of archived transactions */
+  archivedCount: number;
+  /** ISO timestamp of oldest archived transaction */
+  oldestArchived?: string;
+  /** ISO timestamp of most recent archive operation */
+  lastArchiveDate?: string;
+}
+
+/**
  * Store schema - defines the shape of persisted data
  * Note: Index signature required for electron-store/conf compatibility with noUncheckedIndexedAccess
  */
 interface StoreSchema {
   inventory: PersistedInventory;
   transactions: TransactionRecord[];
+  archivedTransactions: ArchivedTransactionsInfo;
   lastUpdated: string;
   [key: string]: unknown;
 }
@@ -55,6 +69,15 @@ interface TypedStore {
   set<K extends keyof StoreSchema>(key: K, value: StoreSchema[K]): void;
   clear(): void;
 }
+
+/**
+ * Default archived transactions info
+ */
+const DEFAULT_ARCHIVED_INFO: ArchivedTransactionsInfo = {
+  archivedCount: 0,
+  oldestArchived: undefined,
+  lastArchiveDate: undefined,
+};
 
 /**
  * PersistenceService class - wraps electron-store with typed methods
@@ -72,6 +95,7 @@ class PersistenceService {
       defaults: {
         inventory: {},
         transactions: [],
+        archivedTransactions: DEFAULT_ARCHIVED_INFO,
         lastUpdated: new Date().toISOString(),
       },
     }) as unknown as TypedStore;
@@ -303,6 +327,118 @@ class PersistenceService {
   public clearAll(): void {
     logger.warn('Clearing all persisted data');
     this.store.clear();
+  }
+
+  /**
+   * Get archived transactions metadata.
+   *
+   * @returns Information about archived transactions
+   */
+  public getArchivedInfo(): ArchivedTransactionsInfo {
+    return this.store.get('archivedTransactions', DEFAULT_ARCHIVED_INFO);
+  }
+
+  /**
+   * Archive old transactions to prevent unbounded growth.
+   *
+   * Removes transactions older than the retention period or when
+   * the total count exceeds maxTransactions. Archived transactions
+   * are removed from active storage but their count is tracked.
+   *
+   * This should be called periodically (e.g., on app startup or
+   * after each transaction batch).
+   *
+   * @returns Number of transactions archived, or 0 if none
+   */
+  public archiveOldTransactions(): number {
+    const transactions = [...this.store.get('transactions', [])];
+    const archivedInfo = this.store.get('archivedTransactions', DEFAULT_ARCHIVED_INFO);
+
+    // Check if rotation is needed
+    const shouldRotateByCount = transactions.length > PERSISTENCE_CONFIG.maxTransactions;
+    const cutoffDate = new Date();
+    cutoffDate.setDate(cutoffDate.getDate() - PERSISTENCE_CONFIG.retentionDays);
+    const cutoffTimestamp = cutoffDate.getTime();
+
+    // Find transactions to archive (older than retention period or exceeding limit)
+    let transactionsToArchive: TransactionRecord[] = [];
+    let transactionsToKeep: TransactionRecord[] = [];
+
+    // First, identify transactions older than retention period
+    for (const txn of transactions) {
+      const txnTimestamp = new Date(txn.timestamp).getTime();
+      // Only archive completed or voided transactions, keep pending ones
+      if (txnTimestamp < cutoffTimestamp && txn.status !== 'pending') {
+        transactionsToArchive.push(txn);
+      } else {
+        transactionsToKeep.push(txn);
+      }
+    }
+
+    // If we still exceed the limit after age-based archival, archive oldest completed transactions
+    if (shouldRotateByCount && transactionsToKeep.length > PERSISTENCE_CONFIG.maxTransactions) {
+      // Sort by timestamp ascending (oldest first)
+      const sortedKeep = [...transactionsToKeep].sort(
+        (a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime()
+      );
+
+      const excessCount = sortedKeep.length - PERSISTENCE_CONFIG.maxTransactions + PERSISTENCE_CONFIG.archiveBatchSize;
+      const additionalToArchive: TransactionRecord[] = [];
+      const stillKeep: TransactionRecord[] = [];
+
+      for (const txn of sortedKeep) {
+        // Archive oldest non-pending transactions up to excessCount
+        if (additionalToArchive.length < excessCount && txn.status !== 'pending') {
+          additionalToArchive.push(txn);
+        } else {
+          stillKeep.push(txn);
+        }
+      }
+
+      transactionsToArchive = [...transactionsToArchive, ...additionalToArchive];
+      transactionsToKeep = stillKeep;
+    }
+
+    // If nothing to archive, return early
+    if (transactionsToArchive.length === 0) {
+      return 0;
+    }
+
+    // Find oldest archived transaction timestamp
+    const oldestArchived = transactionsToArchive.reduce((oldest, txn) => {
+      const txnTime = new Date(txn.timestamp).getTime();
+      return oldest === 0 || txnTime < oldest ? txnTime : oldest;
+    }, 0);
+
+    // Update archived info
+    const newArchivedInfo: ArchivedTransactionsInfo = {
+      archivedCount: archivedInfo.archivedCount + transactionsToArchive.length,
+      oldestArchived: archivedInfo.oldestArchived ?? new Date(oldestArchived).toISOString(),
+      lastArchiveDate: new Date().toISOString(),
+    };
+
+    // Persist changes
+    this.store.set('transactions', transactionsToKeep);
+    this.store.set('archivedTransactions', newArchivedInfo);
+    this.store.set('lastUpdated', new Date().toISOString());
+
+    logger.info('Archived old transactions', {
+      archivedCount: transactionsToArchive.length,
+      remainingCount: transactionsToKeep.length,
+      totalArchived: newArchivedInfo.archivedCount,
+    });
+
+    return transactionsToArchive.length;
+  }
+
+  /**
+   * Check if transaction rotation is needed.
+   *
+   * @returns True if the number of transactions exceeds the configured limit
+   */
+  public needsRotation(): boolean {
+    const count = this.getTransactionCount();
+    return count > PERSISTENCE_CONFIG.maxTransactions;
   }
 }
 

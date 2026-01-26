@@ -4,6 +4,7 @@
 
 import type { AppState, CartItem } from '@shared/ipc-types';
 import type { Cents } from '@shared/currency';
+import { RETRY_CONFIG } from '@shared/config';
 import { CartItemRow } from './CartItemRow';
 import { PaymentActions } from './PaymentActions';
 import { STATUS_BADGE_COLORS } from '../utils/status';
@@ -34,7 +35,7 @@ export function CartSidebar({
   const status = state?.transactionStatus ?? 'IDLE';
   const isLocked = status !== 'IDLE';
   const isError = status === 'ERROR';
-  const canRetry = isError && (state?.retryCount ?? 0) < 3;
+  const canRetry = isError && (state?.retryCount ?? 0) < RETRY_CONFIG.maxRetries;
 
   return (
     <div className="w-80 bg-slate-800 border-l border-slate-700 flex flex-col min-h-0">

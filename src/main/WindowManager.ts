@@ -189,7 +189,7 @@ class WindowManager {
 
   /**
    * Show a specific window (restore if minimized, focus if visible)
-   * For transactions window, creates the window if it doesn't exist
+   * For transactions and debugger windows, creates the window if it doesn't exist
    */
   public showWindow(windowId: WindowId): void {
     const window = this.windows.get(windowId);
@@ -203,6 +203,9 @@ class WindowManager {
     } else if (windowId === 'transactions') {
       // Transactions window can be closed, so recreate it if needed
       this.openTransactionsWindow();
+    } else if (windowId === 'debugger') {
+      // Debugger window can be closed, so recreate it if needed
+      this.openDebuggerWindow();
     } else {
       logger.warn('Window not found', { windowId });
     }
@@ -615,6 +618,56 @@ class WindowManager {
     });
 
     logger.info('Transactions window opened', { windowId: transactionsWindow.id });
+  }
+
+  /**
+   * Open the debugger window
+   * If already open, focuses the existing window
+   */
+  public openDebuggerWindow(): void {
+    // Check if debugger window already exists
+    const existingDebugger = this.windows.get('debugger');
+    if (existingDebugger && !existingDebugger.isDestroyed()) {
+      if (existingDebugger.isMinimized()) {
+        existingDebugger.restore();
+      }
+      existingDebugger.focus();
+      logger.info('Focused existing debugger window');
+      return;
+    }
+
+    const primaryDisplay = screen.getPrimaryDisplay();
+    const { workArea } = primaryDisplay;
+    const debuggerWidth = 800;
+    const debuggerHeight = 600;
+    // Position at bottom-left with margin
+    const debuggerPos = getSafeWindowPosition(
+      primaryDisplay,
+      debuggerWidth,
+      debuggerHeight,
+      workArea.x + 20, // Left side with margin
+      workArea.y + workArea.height - debuggerHeight - 20 // Bottom with margin
+    );
+
+    const debuggerConfig: WindowConfig = {
+      id: 'debugger',
+      title: 'Debugger',
+      width: debuggerWidth,
+      height: debuggerHeight,
+      ...debuggerPos,
+      showMenu: false, // Hide menu bar on Windows/Linux
+    };
+
+    const debuggerWindow = this.createWindow(debuggerConfig);
+
+    // Debugger window can be closed normally (not minimized)
+    debuggerWindow.removeAllListeners('close');
+    debuggerWindow.on('closed', () => {
+      logger.info('Debugger window closed');
+      this.windows.delete('debugger');
+    });
+
+    logger.info('Debugger window opened', { windowId: debuggerWindow.id });
   }
 
   /**

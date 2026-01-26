@@ -95,6 +95,12 @@ class MainStore {
     // Check for pending transactions on startup (crash recovery)
     this.checkPendingTransactions();
 
+    // Archive old transactions to prevent unbounded growth
+    const archivedCount = persistenceService.archiveOldTransactions();
+    if (archivedCount > 0) {
+      logger.info('Archived old transactions on startup', { archivedCount });
+    }
+
     // Initialize metrics from persisted transactions (restore today's metrics)
     const transactions = persistenceService.getTransactions();
     metricsService.initializeFromTransactions(transactions);

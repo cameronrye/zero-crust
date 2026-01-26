@@ -15,6 +15,7 @@ An Architecture Decision Record captures an important architectural decision mad
 | [ADR-003](003-centralized-state-management.md) | Centralized State Management with MainStore | Accepted |
 | [ADR-004](004-electron-security.md) | Electron Security Configuration | Accepted |
 | [ADR-005](005-full-state-broadcast.md) | Full State Broadcast Pattern | Accepted |
+| [ADR-007](007-architecture-debug-window.md) | Architecture Debug Window | Accepted |
 
 ## ADR Template
 

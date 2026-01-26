@@ -22,19 +22,16 @@ export default function TransactionHistoryView() {
     // Fetch initial data
     const fetchInitialData = async () => {
       try {
-        console.log('[TransactionHistoryView] Fetching initial data...');
         const transactionsData = await window.electronAPI.getTransactions();
-        console.log('[TransactionHistoryView] Received data:', {
-          transactionsCount: transactionsData?.length,
-          transactionsData: transactionsData?.slice(0, 2), // Log first 2 transactions
-        });
         if (isMounted) {
-          setTransactions(transactionsData);
+          // Defensive null check - default to empty array if null/undefined
+          setTransactions(transactionsData ?? []);
           setIsLoading(false);
         }
-      } catch (error) {
-        console.error('Failed to fetch admin data:', error);
+      } catch {
+        // Error is caught but we continue gracefully with empty transactions
         if (isMounted) {
+          setTransactions([]);
           setIsLoading(false);
         }
       }
@@ -44,12 +41,9 @@ export default function TransactionHistoryView() {
 
     // Subscribe to push-based updates (no polling needed)
     const unsubscribeTransactions = window.electronAPI.onTransactionsUpdate((newTransactions) => {
-      console.log('[TransactionHistoryView] Received transactions update:', {
-        count: newTransactions?.length,
-        sample: newTransactions?.slice(0, 2),
-      });
       if (isMounted) {
-        setTransactions(newTransactions);
+        // Defensive null check - default to empty array if null/undefined
+        setTransactions(newTransactions ?? []);
       }
     });
 

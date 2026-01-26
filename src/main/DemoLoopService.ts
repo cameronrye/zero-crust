@@ -16,9 +16,17 @@ import { createLogger } from './Logger';
 import { mainStore } from './MainStore';
 import { paymentService } from './PaymentService';
 import { generateDemoOrder } from './DemoService';
+import { traceService } from './TraceService';
 import { DEMO_LOOP_TIMING, RETRY_CONFIG } from '@shared/config';
 
 const logger = createLogger('DemoLoopService');
+
+/** Emit a demo action trace event */
+function emitDemoTrace(action: string, detail?: string, payload?: Record<string, unknown>): void {
+  traceService.emit('demo_action', 'demo-loop', {
+    payload: { action, detail, ...payload },
+  });
+}
 
 /**
  * Generate random delay within a range
@@ -60,6 +68,7 @@ class DemoLoopService {
     }
 
     logger.info('Starting demo loop');
+    emitDemoTrace('LOOP_START', 'Demo loop started');
     this.isRunning = true;
     this.abortController = new AbortController();
 
@@ -82,6 +91,7 @@ class DemoLoopService {
     }
 
     logger.info('Stopping demo loop');
+    emitDemoTrace('LOOP_STOP', 'Demo loop stopped');
     this.abortController?.abort();
     this.isRunning = false;
     this.abortController = null;
@@ -118,6 +128,8 @@ class DemoLoopService {
    * Run a single complete transaction cycle
    */
   private async runSingleTransaction(signal: AbortSignal): Promise<void> {
+    emitDemoTrace('TXN_START', 'Starting new transaction');
+
     // Step 1: Generate and add demo order items
     await this.buildOrder(signal);
     if (signal.aborted) return;
@@ -127,9 +139,11 @@ class DemoLoopService {
     if (signal.aborted) return;
 
     // Step 3: Start checkout
+    emitDemoTrace('CHECKOUT', 'Starting checkout');
     const checkoutResult = mainStore.startCheckout();
     if (!checkoutResult.success) {
       logger.warn('Checkout failed in demo loop', { error: checkoutResult.error });
+      emitDemoTrace('CHECKOUT_FAIL', checkoutResult.error);
       mainStore.clearCart();
       return;
     }
@@ -141,12 +155,14 @@ class DemoLoopService {
     // Step 5: Handle post-payment
     const finalStatus = mainStore.getState().transactionStatus;
     if (finalStatus === 'PAID') {
+      emitDemoTrace('TXN_COMPLETE', 'Transaction complete');
       // Wait briefly then start new transaction
       await this.sleepUnlessAborted(randomDelay(DEMO_LOOP_TIMING.postPaymentDelay), signal);
       if (signal.aborted) return;
       mainStore.resetTransaction();
       paymentService.reset();
     } else {
+      emitDemoTrace('TXN_ERROR', 'Transaction failed, resetting');
       // Error state - reset and continue
       await this.sleepUnlessAborted(randomDelay(DEMO_LOOP_TIMING.errorRecoveryDelay), signal);
       mainStore.cancelCheckout();
@@ -164,10 +180,12 @@ class DemoLoopService {
     // Generate demo order SKUs
     const skus = generateDemoOrder();
     logger.debug('Building demo order', { itemCount: skus.length });
+    emitDemoTrace('BUILD_ORDER', `${skus.length} items`, { itemCount: skus.length });
 
     // Add items one by one with delays
     for (const sku of skus) {
       if (signal.aborted) return;
+      emitDemoTrace('ADD_ITEM', sku, { sku });
       mainStore.addItem(sku);
       await this.sleepUnlessAborted(randomDelay(DEMO_LOOP_TIMING.itemAddDelay), signal);
     }
@@ -179,8 +197,16 @@ class DemoLoopService {
   private async processPaymentWithRetries(signal: AbortSignal): Promise<void> {
     const maxRetries = RETRY_CONFIG.maxRetries;
     let attempt = 0;
+    const amountInCents = mainStore.getCartTotal();
 
     while (attempt < maxRetries && !signal.aborted) {
+      attempt++;
+      emitDemoTrace('PAY_ATTEMPT', `Attempt ${attempt}/${maxRetries}`, {
+        attempt,
+        maxRetries,
+        amountInCents,
+      });
+
       // Start payment processing
       const startResult = mainStore.startPaymentProcessing();
       if (!startResult.success) {
@@ -190,22 +216,26 @@ class DemoLoopService {
 
       // Process via mock gateway
       const paymentResult = await paymentService.process({
-        amountInCents: mainStore.getCartTotal(),
+        amountInCents,
         transactionId: startResult.transactionId,
       });
 
       if (paymentResult.success) {
         // Success! Complete the transaction
         mainStore.handlePaymentSuccess(paymentResult.transactionId!);
-        logger.info('Demo payment successful', { attempt: attempt + 1 });
+        logger.info('Demo payment successful', { attempt });
+        emitDemoTrace('PAY_SUCCESS', `$${(amountInCents / 100).toFixed(2)}`, { amountInCents });
         return;
       }
 
       // Payment failed
-      attempt++;
       logger.info('Demo payment failed, will retry', {
         attempt,
         maxRetries,
+        errorCode: paymentResult.errorCode,
+      });
+      emitDemoTrace('PAY_FAIL', paymentResult.errorCode ?? 'Unknown error', {
+        attempt,
         errorCode: paymentResult.errorCode,
       });
 

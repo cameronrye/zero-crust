@@ -40,6 +40,9 @@ Zero Crust is a POS simulator designed to explore and validate architectural pat
   <tr>
     <td colspan="2"><img src="assets/screenshots/transactions.png" alt="Dual-Window Transaction View" width="100%"></td>
   </tr>
+  <tr>
+    <td colspan="2"><img src="assets/screenshots/debugger.png" alt="Architecture Debug Window" width="100%"></td>
+  </tr>
 </table>
 
 
@@ -228,6 +231,46 @@ Real-time operational metrics displayed on the cashier screen:
 - Average cart size
 - Daily transaction count
 - Daily revenue total
+
+## Architecture Debug Window
+
+A real-time visualization tool for understanding and debugging the application's IPC message flow, state changes, and system health. This window is included in production builds as an observability tool.
+
+**Access**: Window menu > Show Architecture, or keyboard shortcut Cmd/Ctrl+Shift+A
+
+### Four-Panel Layout
+
+| Panel | Description |
+|-------|-------------|
+| **Graph** | Interactive node diagram showing Main Process, Cashier, Customer, and Transaction History windows with animated edges that pulse when messages flow |
+| **Timeline** | Virtualized event log with color-coded entries, expandable payloads, and filtering by event type |
+| **Stats** | Live metrics including events/second, total events, state version, and connected window count |
+| **State Inspector** | JSON tree view with diff highlighting showing what changed between state versions, plus a time-travel slider to navigate state history |
+
+### Event Types
+
+| Type | Color | Description |
+|------|-------|-------------|
+| command_received | Blue | IPC command received from renderer |
+| command_processed | Green | Command handler completed |
+| state_broadcast | Amber | State synchronized to windows |
+| ipc_send | Purple | IPC message sent to renderer |
+| payment_start | Teal | Payment processing initiated |
+| payment_complete | Emerald | Payment processing finished |
+
+### Use Cases
+
+- **Debugging**: Trace command flow from UI action to state change
+- **Architecture Education**: Visualize Electron's Main/Renderer process model
+- **Performance Analysis**: Monitor event latency and throughput
+- **State Inspection**: Examine state changes with diff highlighting
+
+### Performance
+
+The architecture window uses lazy activation. When closed, there is zero overhead. When open:
+- UI updates throttled to 60fps
+- Virtualized lists handle high event volumes
+- Circular buffer capped at 1000 events
 
 ## License
 

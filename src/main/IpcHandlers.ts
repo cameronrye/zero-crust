@@ -15,9 +15,11 @@ import { metricsService } from './MetricsService';
 import { persistenceService } from './PersistenceService';
 import { mainStore } from './MainStore';
 import { validateSender } from './SecurityHandlers';
+import { traceService, initializeTraceEventBroadcast, generateCorrelationId } from './TraceService';
 import type { WindowId } from '@shared/ipc-types';
 import { IPC_CHANNELS } from '@shared/ipc-types';
 import { validateCommand } from '@shared/schemas';
+import type { TraceHistoryOptions } from '@shared/trace-types';
 
 const logger = createLogger('IpcHandlers');
 
@@ -29,6 +31,9 @@ export function initializeIpcHandlers(): void {
 
   // Initialize the broadcast service (MainStore -> Windows)
   initializeBroadcastService();
+
+  // Initialize trace event broadcast (TraceService -> Architecture Window)
+  initializeTraceEventBroadcast();
 
   // Handle commands from renderer
   ipcMain.handle(IPC_CHANNELS.COMMAND, async (event, rawCommand: unknown) => {
@@ -57,6 +62,19 @@ export function initializeIpcHandlers(): void {
 
     const command = validationResult.data;
 
+    // Generate correlation ID to link command_received and command_processed events
+    const correlationId = generateCorrelationId();
+
+    // Emit trace event for command received
+    traceService.emit('command_received', windowId, {
+      correlationId,
+      target: 'main',
+      payload: {
+        commandType: command.type,
+        payload: command.payload,
+      },
+    });
+
     logger.debug('Received valid command', {
       type: command.type,
       source: windowId,
@@ -64,7 +82,7 @@ export function initializeIpcHandlers(): void {
     });
 
     try {
-      const result = await handleCommand(command, windowId);
+      const result = await handleCommand(command, windowId, correlationId);
       if (!result.success) {
         logger.warn('Command failed', {
           type: command.type,
@@ -162,6 +180,37 @@ export function initializeIpcHandlers(): void {
       items: transaction.items,
       totalInCents: transaction.totalInCents,
     });
+  });
+
+  // Handle trace history request (for Architecture Debug Window)
+  ipcMain.handle(
+    IPC_CHANNELS.GET_TRACE_HISTORY,
+    async (event, options: TraceHistoryOptions = {}) => {
+      // Security: Validate sender is from trusted source
+      if (!validateSender(event.senderFrame)) {
+        logger.warn('Rejected trace history request from untrusted sender', {
+          url: event.senderFrame.url,
+        });
+        throw new Error('Unauthorized: IPC from untrusted source');
+      }
+
+      logger.debug('Trace history requested', { limit: options.limit });
+      return traceService.getHistory(options);
+    }
+  );
+
+  // Handle trace stats request (for Architecture Debug Window)
+  ipcMain.handle(IPC_CHANNELS.GET_TRACE_STATS, async (event) => {
+    // Security: Validate sender is from trusted source
+    if (!validateSender(event.senderFrame)) {
+      logger.warn('Rejected trace stats request from untrusted sender', {
+        url: event.senderFrame.url,
+      });
+      throw new Error('Unauthorized: IPC from untrusted source');
+    }
+
+    logger.debug('Trace stats requested');
+    return traceService.getStats();
   });
 
   logger.info('IPC handlers initialized');

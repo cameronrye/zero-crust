@@ -120,6 +120,7 @@ class TrayManager {
     const cashierVisible = isWindowVisible('cashier');
     const customerVisible = isWindowVisible('customer');
     const transactionsVisible = isWindowVisible('transactions');
+    const debuggerVisible = isWindowVisible('debugger');
 
     const template: Electron.MenuItemConstructorOptions[] = [
       {
@@ -153,6 +154,13 @@ class TrayManager {
         label: transactionsVisible ? 'Hide Transactions' : 'Show Transactions',
         click: () => {
           toggleWindow('transactions');
+          this.updateContextMenu();
+        },
+      },
+      {
+        label: debuggerVisible ? 'Hide Debugger' : 'Show Debugger',
+        click: () => {
+          toggleWindow('debugger');
           this.updateContextMenu();
         },
       },
