@@ -200,8 +200,8 @@ jobs:
         env:
           TAG_NAME: ${{ github.ref_name }}
         run: |
-          # Find the Windows setup exe
-          SETUP_EXE=$(find artifacts -name "*.Setup.exe" -type f | head -1)
+          # Find the Windows setup exe (note: filename has spaces, e.g. "Zero Crust-1.1.7 Setup.exe")
+          SETUP_EXE=$(find artifacts -name "*Setup.exe" -type f | head -1)
           if [ -n "$SETUP_EXE" ]; then
             # Extract version from tag (remove 'v' prefix)
             VERSION="${TAG_NAME#v}"
