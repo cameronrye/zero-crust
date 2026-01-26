@@ -273,7 +273,7 @@ function JsonTree({ data, changedPaths, path = '', depth = 0 }: JsonTreeProps) {
   if (typeof data === 'string') {
     return (
       <span className="text-emerald-400" role="treeitem" aria-label={`string: ${data}`}>
-        "{data}"
+        &quot;{data}&quot;
       </span>
     );
   }

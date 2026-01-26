@@ -18,11 +18,11 @@
 
 | Platform | Download |
 |----------|----------|
-| macOS (Apple Silicon) | [Zero.Crust-darwin-arm64-1.1.3.zip](https://github.com/cameronrye/zero-crust/releases/download/v1.1.3/Zero.Crust-darwin-arm64-1.1.3.zip) |
-| macOS (Intel) | [Zero.Crust-darwin-x64-1.1.3.zip](https://github.com/cameronrye/zero-crust/releases/download/v1.1.3/Zero.Crust-darwin-x64-1.1.3.zip) |
-| Windows | [Zero.Crust-1.1.3.Setup.exe](https://github.com/cameronrye/zero-crust/releases/download/v1.1.3/Zero.Crust-1.1.3.Setup.exe) |
-| Linux (Debian/Ubuntu) | [zero-crust_1.1.3_amd64.deb](https://github.com/cameronrye/zero-crust/releases/download/v1.1.3/zero-crust_1.1.3_amd64.deb) |
-| Linux (Fedora/RHEL) | [zero-crust-1.1.3-1.x86_64.rpm](https://github.com/cameronrye/zero-crust/releases/download/v1.1.3/zero-crust-1.1.3-1.x86_64.rpm) |
+| macOS (Apple Silicon) | [Zero.Crust-darwin-arm64-1.1.4.zip](https://github.com/cameronrye/zero-crust/releases/download/v1.1.4/Zero.Crust-darwin-arm64-1.1.4.zip) |
+| macOS (Intel) | [Zero.Crust-darwin-x64-1.1.4.zip](https://github.com/cameronrye/zero-crust/releases/download/v1.1.4/Zero.Crust-darwin-x64-1.1.4.zip) |
+| Windows | [Zero.Crust-1.1.4.Setup.exe](https://github.com/cameronrye/zero-crust/releases/download/v1.1.4/Zero.Crust-1.1.4.Setup.exe) |
+| Linux (Debian/Ubuntu) | [zero-crust_1.1.4_amd64.deb](https://github.com/cameronrye/zero-crust/releases/download/v1.1.4/zero-crust_1.1.4_amd64.deb) |
+| Linux (Fedora/RHEL) | [zero-crust-1.1.4-1.x86_64.rpm](https://github.com/cameronrye/zero-crust/releases/download/v1.1.4/zero-crust-1.1.4-1.x86_64.rpm) |
 
 [View all releases](https://github.com/cameronrye/zero-crust/releases)
 
