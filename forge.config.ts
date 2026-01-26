@@ -38,7 +38,9 @@ const config: ForgeConfig = {
     // ==========================================================================
     ...(process.env.APPLE_ID && process.env.APPLE_APP_SPECIFIC_PASSWORD && process.env.APPLE_TEAM_ID
       ? {
-          osxSign: {},
+          osxSign: {
+            identity: `Developer ID Application: Cameron Rye (${process.env.APPLE_TEAM_ID})`,
+          },
           osxNotarize: {
             appleId: process.env.APPLE_ID,
             appleIdPassword: process.env.APPLE_APP_SPECIFIC_PASSWORD,
