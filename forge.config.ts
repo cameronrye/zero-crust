@@ -168,11 +168,12 @@ const config: ForgeConfig = {
   // ==========================================================================
   // Hooks Configuration
   // ==========================================================================
-  // Post-package hook to generate app-update.yml for electron-updater.
+  // packageAfterCopy hook to generate app-update.yml for electron-updater.
+  // This runs BEFORE code signing, so the file is included in the signature.
   // electron-updater requires this file to know where to check for updates.
   // ==========================================================================
   hooks: {
-    postPackage: async (forgeConfig, options) => {
+    packageAfterCopy: async (forgeConfig, buildPath, electronVersion, platform, arch) => {
       // Generate app-update.yml for electron-updater
       // This file tells electron-updater where to check for updates
       const appUpdateYml = `provider: github
@@ -181,31 +182,24 @@ repo: zero-crust
 updaterCacheDirName: zero-crust-updater
 `;
 
-      const appName = forgeConfig.packagerConfig?.name || 'Zero Crust';
+      let resourcesPath: string;
 
-      for (const outputPath of options.outputPaths) {
-        let resourcesPath: string;
-
-        if (options.platform === 'darwin') {
-          // macOS: outputPath contains the .app bundle, e.g., out/Zero Crust-darwin-arm64
-          // The app is at: out/Zero Crust-darwin-arm64/Zero Crust.app/Contents/Resources
-          const appBundlePath = path.join(outputPath, `${appName}.app`);
-          resourcesPath = path.join(appBundlePath, 'Contents', 'Resources');
-        } else {
-          // Windows/Linux: resources/app-update.yml
-          resourcesPath = path.join(outputPath, 'resources');
-        }
-
-        const appUpdatePath = path.join(resourcesPath, 'app-update.yml');
-
+      if (platform === 'darwin') {
+        // macOS: buildPath is the .app/Contents/Resources/app directory
+        // We need to go up one level to Contents/Resources
+        resourcesPath = path.dirname(buildPath);
+      } else {
+        // Windows/Linux: buildPath is the app directory, resources is at the same level
+        resourcesPath = path.join(path.dirname(buildPath), 'resources');
         // Ensure resources directory exists
-        if (fs.existsSync(resourcesPath)) {
-          fs.writeFileSync(appUpdatePath, appUpdateYml, 'utf-8');
-          console.log(`Generated app-update.yml at: ${appUpdatePath}`);
-        } else {
-          console.warn(`Resources path not found: ${resourcesPath}`);
+        if (!fs.existsSync(resourcesPath)) {
+          fs.mkdirSync(resourcesPath, { recursive: true });
         }
       }
+
+      const appUpdatePath = path.join(resourcesPath, 'app-update.yml');
+      fs.writeFileSync(appUpdatePath, appUpdateYml, 'utf-8');
+      console.log(`Generated app-update.yml at: ${appUpdatePath}`);
     },
   },
 };
