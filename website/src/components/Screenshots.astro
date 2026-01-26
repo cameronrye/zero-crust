@@ -1,0 +1,111 @@
+---
+// Primary screenshots - landscape aspect ratios that display well
+const primaryScreenshots = [
+  {
+    src: "/zero-crust/screenshots/cashier.png",
+    alt: "Cashier View",
+    title: "Cashier View",
+    description: "Full-featured order entry with product categories and quick keys",
+  },
+  {
+    src: "/zero-crust/screenshots/debugger.png",
+    alt: "Architecture Debugger",
+    title: "Architecture Debugger",
+    description: "Live visualization of IPC messages and state flow",
+  },
+];
+
+// Wide screenshot - spans full width
+const wideScreenshot = {
+  src: "/zero-crust/screenshots/transactions.png",
+  alt: "Transaction History",
+  title: "Transaction History",
+  description: "Complete audit trail of all completed transactions",
+};
+
+// Portrait screenshot - displayed smaller as accent
+const portraitScreenshot = {
+  src: "/zero-crust/screenshots/customer.png",
+  alt: "Customer Display",
+  title: "Customer Display",
+  description: "Real-time order display synchronized with cashier actions",
+};
+---
+
+<section id="screenshots" class="py-24">
+  <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+    <!-- Section Header -->
+    <div class="text-center mb-16">
+      <h2 class="text-3xl sm:text-4xl font-bold text-zinc-100 mb-4">
+        Screenshots
+      </h2>
+      <p class="text-lg text-zinc-400 max-w-2xl mx-auto">
+        See the dual-head POS system in action
+      </p>
+    </div>
+
+    <!-- Primary Screenshots - 2 column grid -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+      {
+        primaryScreenshots.map((screenshot) => (
+          <div class="group">
+            <div class="relative overflow-hidden rounded-xl border border-zinc-700/50 bg-zinc-800/50 aspect-4/3">
+              <img
+                src={screenshot.src}
+                alt={screenshot.alt}
+                class="w-full h-full object-cover object-top transition-transform duration-300 group-hover:scale-105"
+                loading="lazy"
+              />
+            </div>
+            <div class="mt-4">
+              <h3 class="text-lg font-semibold text-zinc-100">
+                {screenshot.title}
+              </h3>
+              <p class="text-sm text-zinc-400 mt-1">{screenshot.description}</p>
+            </div>
+          </div>
+        ))
+      }
+    </div>
+
+    <!-- Wide Screenshot + Portrait Side by Side -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <!-- Wide screenshot - spans 2 columns -->
+      <div class="group lg:col-span-2">
+        <div class="relative overflow-hidden rounded-xl border border-zinc-700/50 bg-zinc-800/50 aspect-5/2">
+          <img
+            src={wideScreenshot.src}
+            alt={wideScreenshot.alt}
+            class="w-full h-full object-cover object-top transition-transform duration-300 group-hover:scale-105"
+            loading="lazy"
+          />
+        </div>
+        <div class="mt-4">
+          <h3 class="text-lg font-semibold text-zinc-100">
+            {wideScreenshot.title}
+          </h3>
+          <p class="text-sm text-zinc-400 mt-1">{wideScreenshot.description}</p>
+        </div>
+      </div>
+
+      <!-- Portrait screenshot - 1 column -->
+      <div class="group">
+        <div class="relative overflow-hidden rounded-xl border border-zinc-700/50 bg-zinc-800/50 aspect-3/4 lg:aspect-5/8">
+          <img
+            src={portraitScreenshot.src}
+            alt={portraitScreenshot.alt}
+            class="w-full h-full object-cover object-top transition-transform duration-300 group-hover:scale-105"
+            loading="lazy"
+          />
+        </div>
+        <div class="mt-4">
+          <h3 class="text-lg font-semibold text-zinc-100">
+            {portraitScreenshot.title}
+          </h3>
+          <p class="text-sm text-zinc-400 mt-1">{portraitScreenshot.description}</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+

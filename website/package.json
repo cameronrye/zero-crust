@@ -1,0 +1,19 @@
+{
+  "name": "zero-crust-website",
+  "type": "module",
+  "version": "1.0.0",
+  "description": "Marketing website for Zero Crust POS Simulator",
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview"
+  },
+  "dependencies": {
+    "@astrojs/sitemap": "^3.7.0",
+    "astro": "^5.7.10"
+  },
+  "devDependencies": {
+    "@tailwindcss/vite": "^4.1.4",
+    "tailwindcss": "^4.1.4"
+  }
+}

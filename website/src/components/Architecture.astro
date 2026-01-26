@@ -1,0 +1,116 @@
+---
+const principles = [
+  {
+    title: "Security Boundary",
+    description:
+      "All business logic executes in the Main process. Renderers are sandboxed with contextIsolation and nodeIntegration disabled.",
+  },
+  {
+    title: "Single Source of Truth",
+    description:
+      "MainStore holds all application state. Changes broadcast the entire state to all renderers.",
+  },
+  {
+    title: "ID-Based Messaging",
+    description:
+      "Renderers send only product SKUs. Main process looks up prices from the catalog, preventing price tampering.",
+  },
+  {
+    title: "Runtime Validation",
+    description:
+      "All IPC commands validated with Zod schemas before processing.",
+  },
+];
+
+const techStack = [
+  { name: "Electron 36", category: "Framework" },
+  { name: "TypeScript", category: "Language" },
+  { name: "React 19", category: "UI" },
+  { name: "Tailwind CSS 4", category: "Styling" },
+  { name: "Immer", category: "State" },
+  { name: "Zod", category: "Validation" },
+  { name: "Vitest", category: "Testing" },
+  { name: "Electron Forge", category: "Build" },
+];
+---
+
+<section id="architecture" class="py-24 bg-zinc-900/50">
+  <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+    <!-- Section Header -->
+    <div class="text-center mb-16">
+      <h2 class="text-3xl sm:text-4xl font-bold text-zinc-100 mb-4">
+        Architecture
+      </h2>
+      <p class="text-lg text-zinc-400 max-w-2xl mx-auto">
+        Built on proven patterns for secure, maintainable POS systems
+      </p>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-12">
+      <!-- Architecture Diagram -->
+      <div class="bg-zinc-800/50 rounded-xl border border-zinc-700/50 p-8">
+        <h3 class="text-xl font-semibold text-zinc-100 mb-6">Process Model</h3>
+        <div class="space-y-4">
+          <!-- Main Process -->
+          <div class="p-4 bg-brand-500/10 rounded-lg border border-brand-500/30">
+            <div class="font-medium text-brand-400 mb-2">Main Process</div>
+            <div class="text-sm text-zinc-400 space-y-1">
+              <div>MainStore (State)</div>
+              <div>PaymentService</div>
+              <div>BroadcastService</div>
+              <div>PersistenceService</div>
+            </div>
+          </div>
+          <!-- Arrow -->
+          <div class="flex justify-center">
+            <svg class="w-6 h-6 text-zinc-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4" />
+            </svg>
+          </div>
+          <!-- Renderer Processes -->
+          <div class="grid grid-cols-2 gap-4">
+            <div class="p-4 bg-zinc-700/50 rounded-lg border border-zinc-600/50">
+              <div class="font-medium text-zinc-300 mb-1">Cashier Window</div>
+              <div class="text-xs text-zinc-500">React + Tailwind</div>
+            </div>
+            <div class="p-4 bg-zinc-700/50 rounded-lg border border-zinc-600/50">
+              <div class="font-medium text-zinc-300 mb-1">Customer Window</div>
+              <div class="text-xs text-zinc-500">React + Tailwind</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Design Principles -->
+      <div>
+        <h3 class="text-xl font-semibold text-zinc-100 mb-6">Design Principles</h3>
+        <div class="space-y-4">
+          {
+            principles.map((principle) => (
+              <div class="p-4 bg-zinc-800/50 rounded-lg border border-zinc-700/50">
+                <h4 class="font-medium text-zinc-100 mb-1">{principle.title}</h4>
+                <p class="text-sm text-zinc-400">{principle.description}</p>
+              </div>
+            ))
+          }
+        </div>
+      </div>
+    </div>
+
+    <!-- Tech Stack -->
+    <div class="mt-16">
+      <h3 class="text-xl font-semibold text-zinc-100 mb-6 text-center">Tech Stack</h3>
+      <div class="flex flex-wrap justify-center gap-3">
+        {
+          techStack.map((tech) => (
+            <div class="px-4 py-2 bg-zinc-800/50 rounded-lg border border-zinc-700/50">
+              <span class="text-zinc-100 font-medium">{tech.name}</span>
+              <span class="text-zinc-500 text-sm ml-2">{tech.category}</span>
+            </div>
+          ))
+        }
+      </div>
+    </div>
+  </div>
+</section>
+

@@ -1,0 +1,104 @@
+---
+interface Props {
+  title?: string;
+  description?: string;
+}
+
+const {
+  title = "Zero Crust POS Simulator",
+  description = "A virtualized dual-head point-of-sale system built with Electron, demonstrating enterprise-grade architecture patterns for high-volume retail environments.",
+} = Astro.props;
+
+const siteUrl = "https://cameronrye.github.io/zero-crust";
+const ogImage = `${siteUrl}/og-image.png`;
+const author = "Cameron Rye";
+const keywords = "POS, point of sale, Electron, React, TypeScript, dual-head display, restaurant software, architecture demo, IPC, state management";
+const themeColor = "#f97316"; // Brand orange
+
+// Structured data for software application
+const structuredData = {
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  "name": "Zero Crust POS Simulator",
+  "description": description,
+  "applicationCategory": "DeveloperApplication",
+  "operatingSystem": "macOS, Windows, Linux",
+  "author": {
+    "@type": "Person",
+    "name": author,
+    "url": "https://github.com/cameronrye"
+  },
+  "offers": {
+    "@type": "Offer",
+    "price": "0",
+    "priceCurrency": "USD"
+  },
+  "downloadUrl": "https://github.com/cameronrye/zero-crust/releases",
+  "softwareVersion": "1.1.1",
+  "screenshot": `${siteUrl}/screenshots/cashier.png`,
+  "url": siteUrl
+};
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <!-- Primary Meta Tags -->
+    <title>{title}</title>
+    <meta name="title" content={title} />
+    <meta name="description" content={description} />
+    <meta name="keywords" content={keywords} />
+    <meta name="author" content={author} />
+    <meta name="robots" content="index, follow" />
+    <meta name="language" content="English" />
+    <meta name="revisit-after" content="7 days" />
+
+    <!-- Theme Color -->
+    <meta name="theme-color" content={themeColor} />
+    <meta name="msapplication-TileColor" content={themeColor} />
+
+    <!-- Canonical URL -->
+    <link rel="canonical" href={siteUrl} />
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content={siteUrl} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:image" content={ogImage} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="Zero Crust POS Simulator - Cashier View" />
+    <meta property="og:site_name" content="Zero Crust" />
+    <meta property="og:locale" content="en_US" />
+
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:url" content={siteUrl} />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={ogImage} />
+    <meta name="twitter:image:alt" content="Zero Crust POS Simulator - Cashier View" />
+    <meta name="twitter:creator" content="@cameronrye" />
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="/zero-crust/favicon.svg" />
+    <link rel="apple-touch-icon" href="/zero-crust/og-image.png" />
+
+    <!-- Structured Data -->
+    <script is:inline type="application/ld+json" set:html={JSON.stringify(structuredData)} />
+  </head>
+  <body
+    class="min-h-screen bg-zinc-950 text-zinc-100 font-sans antialiased"
+  >
+    <slot />
+  </body>
+</html>
+
+<style is:global>
+  @import "../styles/global.css";
+</style>
+

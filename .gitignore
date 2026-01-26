@@ -99,3 +99,7 @@ typings/
 
 # Electron-Forge
 out/
+
+# Astro
+website/dist/
+website/.astro/

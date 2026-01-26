@@ -1,0 +1,8 @@
+# Zero Crust POS Simulator
+# https://cameronrye.github.io/zero-crust
+
+User-agent: *
+Allow: /
+
+Sitemap: https://cameronrye.github.io/zero-crust/sitemap-index.xml
+

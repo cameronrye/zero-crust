@@ -1,0 +1,105 @@
+---
+import Button from "./Button.astro";
+
+const version = "1.1.1";
+const baseUrl = "https://github.com/cameronrye/zero-crust/releases/download";
+
+const downloads = [
+  {
+    platform: "macOS",
+    subtitle: "Apple Silicon",
+    filename: `Zero.Crust-darwin-arm64-${version}.zip`,
+    icon: "M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z",
+  },
+  {
+    platform: "macOS",
+    subtitle: "Intel",
+    filename: `Zero.Crust-darwin-x64-${version}.zip`,
+    icon: "M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z",
+  },
+  {
+    platform: "Windows",
+    subtitle: "Installer",
+    filename: `Zero.Crust-${version}.Setup.exe`,
+    icon: "M3 12V6.75l6-1.32v6.48L3 12zm17-9v8.75l-10 .15V5.21L20 3zM3 13l6 .09v6.81l-6-1.15V13zm17 .25V22l-10-1.91V13.1l10 .15z",
+  },
+  {
+    platform: "Linux",
+    subtitle: "Debian/Ubuntu",
+    filename: `zero-crust_${version}_amd64.deb`,
+    icon: "M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm-1-13h2v6h-2zm0 8h2v2h-2z",
+  },
+  {
+    platform: "Linux",
+    subtitle: "Fedora/RHEL",
+    filename: `zero-crust-${version}-1.x86_64.rpm`,
+    icon: "M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm-1-13h2v6h-2zm0 8h2v2h-2z",
+  },
+];
+---
+
+<section id="download" class="py-24">
+  <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+    <!-- Section Header -->
+    <div class="text-center mb-16">
+      <h2 class="text-3xl sm:text-4xl font-bold text-zinc-100 mb-4">
+        Download
+      </h2>
+      <p class="text-lg text-zinc-400 max-w-2xl mx-auto">
+        Get Zero Crust POS Simulator for your platform
+      </p>
+      <p class="text-sm text-zinc-500 mt-2">Version {version}</p>
+    </div>
+
+    <!-- Download Grid -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 max-w-4xl mx-auto">
+      {
+        downloads.map((download) => (
+          <a
+            href={`${baseUrl}/v${version}/${download.filename}`}
+            class="group flex items-center gap-4 p-4 bg-zinc-800/50 rounded-xl border border-zinc-700/50 hover:border-brand-500/50 hover:bg-zinc-800 transition-all"
+          >
+            <div class="w-12 h-12 rounded-lg bg-zinc-700/50 flex items-center justify-center group-hover:bg-brand-500/20 transition-colors">
+              <svg
+                class="w-6 h-6 text-zinc-400 group-hover:text-brand-500 transition-colors"
+                fill="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path d={download.icon} />
+              </svg>
+            </div>
+            <div>
+              <div class="font-medium text-zinc-100">{download.platform}</div>
+              <div class="text-sm text-zinc-500">{download.subtitle}</div>
+            </div>
+            <svg
+              class="w-5 h-5 text-zinc-500 ml-auto group-hover:text-brand-500 transition-colors"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
+              />
+            </svg>
+          </a>
+        ))
+      }
+    </div>
+
+    <!-- All Releases Link -->
+    <div class="text-center mt-8">
+      <Button
+        href="https://github.com/cameronrye/zero-crust/releases"
+        variant="secondary"
+        external
+      >
+        View All Releases
+      </Button>
+    </div>
+  </div>
+</section>
+
