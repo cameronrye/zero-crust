@@ -38,9 +38,9 @@ export function initializeIpcHandlers(): void {
   // Handle commands from renderer
   ipcMain.handle(IPC_CHANNELS.COMMAND, async (event, rawCommand: unknown) => {
     // Security: Validate sender is from trusted source
-    if (!validateSender(event.senderFrame)) {
+    if (!event.senderFrame || !validateSender(event.senderFrame)) {
       logger.warn('Rejected IPC from untrusted sender', {
-        url: event.senderFrame.url,
+        url: event.senderFrame?.url ?? 'unknown',
       });
       throw new Error('Unauthorized: IPC from untrusted source');
     }
@@ -102,9 +102,9 @@ export function initializeIpcHandlers(): void {
   // Handle request for initial state (when windows load)
   ipcMain.handle(IPC_CHANNELS.REQUEST_STATE, async (event) => {
     // Security: Validate sender is from trusted source
-    if (!validateSender(event.senderFrame)) {
+    if (!event.senderFrame || !validateSender(event.senderFrame)) {
       logger.warn('Rejected state request from untrusted sender', {
-        url: event.senderFrame.url,
+        url: event.senderFrame?.url ?? 'unknown',
       });
       throw new Error('Unauthorized: IPC from untrusted source');
     }
@@ -116,9 +116,9 @@ export function initializeIpcHandlers(): void {
   // Handle metrics request
   ipcMain.handle(IPC_CHANNELS.GET_METRICS, async (event) => {
     // Security: Validate sender is from trusted source
-    if (!validateSender(event.senderFrame)) {
+    if (!event.senderFrame || !validateSender(event.senderFrame)) {
       logger.warn('Rejected metrics request from untrusted sender', {
-        url: event.senderFrame.url,
+        url: event.senderFrame?.url ?? 'unknown',
       });
       throw new Error('Unauthorized: IPC from untrusted source');
     }
@@ -130,9 +130,9 @@ export function initializeIpcHandlers(): void {
   // Handle transactions request (for transaction history view)
   ipcMain.handle(IPC_CHANNELS.GET_TRANSACTIONS, async (event) => {
     // Security: Validate sender is from trusted source
-    if (!validateSender(event.senderFrame)) {
+    if (!event.senderFrame || !validateSender(event.senderFrame)) {
       logger.warn('Rejected transactions request from untrusted sender', {
-        url: event.senderFrame.url,
+        url: event.senderFrame?.url ?? 'unknown',
       });
       throw new Error('Unauthorized: IPC from untrusted source');
     }
@@ -144,9 +144,9 @@ export function initializeIpcHandlers(): void {
   // Handle inventory request (for transaction history view)
   ipcMain.handle(IPC_CHANNELS.GET_INVENTORY, async (event) => {
     // Security: Validate sender is from trusted source
-    if (!validateSender(event.senderFrame)) {
+    if (!event.senderFrame || !validateSender(event.senderFrame)) {
       logger.warn('Rejected inventory request from untrusted sender', {
-        url: event.senderFrame.url,
+        url: event.senderFrame?.url ?? 'unknown',
       });
       throw new Error('Unauthorized: IPC from untrusted source');
     }
@@ -158,9 +158,9 @@ export function initializeIpcHandlers(): void {
   // Handle show receipt request (from transaction history view)
   ipcMain.handle(IPC_CHANNELS.SHOW_RECEIPT, async (event, transactionId: string) => {
     // Security: Validate sender is from trusted source
-    if (!validateSender(event.senderFrame)) {
+    if (!event.senderFrame || !validateSender(event.senderFrame)) {
       logger.warn('Rejected show receipt request from untrusted sender', {
-        url: event.senderFrame.url,
+        url: event.senderFrame?.url ?? 'unknown',
       });
       throw new Error('Unauthorized: IPC from untrusted source');
     }
@@ -187,9 +187,9 @@ export function initializeIpcHandlers(): void {
     IPC_CHANNELS.GET_TRACE_HISTORY,
     async (event, options: TraceHistoryOptions = {}) => {
       // Security: Validate sender is from trusted source
-      if (!validateSender(event.senderFrame)) {
+      if (!event.senderFrame || !validateSender(event.senderFrame)) {
         logger.warn('Rejected trace history request from untrusted sender', {
-          url: event.senderFrame.url,
+          url: event.senderFrame?.url ?? 'unknown',
         });
         throw new Error('Unauthorized: IPC from untrusted source');
       }
@@ -202,9 +202,9 @@ export function initializeIpcHandlers(): void {
   // Handle trace stats request (for Architecture Debug Window)
   ipcMain.handle(IPC_CHANNELS.GET_TRACE_STATS, async (event) => {
     // Security: Validate sender is from trusted source
-    if (!validateSender(event.senderFrame)) {
+    if (!event.senderFrame || !validateSender(event.senderFrame)) {
       logger.warn('Rejected trace stats request from untrusted sender', {
-        url: event.senderFrame.url,
+        url: event.senderFrame?.url ?? 'unknown',
       });
       throw new Error('Unauthorized: IPC from untrusted source');
     }

@@ -18,11 +18,11 @@
 
 | Platform | Download |
 |----------|----------|
-| macOS (Apple Silicon) | [Zero.Crust-darwin-arm64-1.1.8.zip](https://github.com/cameronrye/zero-crust/releases/download/v1.1.8/Zero.Crust-darwin-arm64-1.1.8.zip) |
-| macOS (Intel) | [Zero.Crust-darwin-x64-1.1.8.zip](https://github.com/cameronrye/zero-crust/releases/download/v1.1.8/Zero.Crust-darwin-x64-1.1.8.zip) |
-| Windows | [Zero.Crust-1.1.8.Setup.exe](https://github.com/cameronrye/zero-crust/releases/download/v1.1.8/Zero.Crust-1.1.8.Setup.exe) |
-| Linux (Debian/Ubuntu) | [zero-crust_1.1.8_amd64.deb](https://github.com/cameronrye/zero-crust/releases/download/v1.1.8/zero-crust_1.1.8_amd64.deb) |
-| Linux (Fedora/RHEL) | [zero-crust-1.1.8-1.x86_64.rpm](https://github.com/cameronrye/zero-crust/releases/download/v1.1.8/zero-crust-1.1.8-1.x86_64.rpm) |
+| macOS (Apple Silicon) | [Zero.Crust-darwin-arm64-1.1.9.zip](https://github.com/cameronrye/zero-crust/releases/download/v1.1.9/Zero.Crust-darwin-arm64-1.1.9.zip) |
+| macOS (Intel) | [Zero.Crust-darwin-x64-1.1.9.zip](https://github.com/cameronrye/zero-crust/releases/download/v1.1.9/Zero.Crust-darwin-x64-1.1.9.zip) |
+| Windows | [Zero.Crust-1.1.9.Setup.exe](https://github.com/cameronrye/zero-crust/releases/download/v1.1.9/Zero.Crust-1.1.9.Setup.exe) |
+| Linux (Debian/Ubuntu) | [zero-crust_1.1.9_amd64.deb](https://github.com/cameronrye/zero-crust/releases/download/v1.1.9/zero-crust_1.1.9_amd64.deb) |
+| Linux (Fedora/RHEL) | [zero-crust-1.1.9-1.x86_64.rpm](https://github.com/cameronrye/zero-crust/releases/download/v1.1.9/zero-crust-1.1.9-1.x86_64.rpm) |
 
 [View all releases](https://github.com/cameronrye/zero-crust/releases)
 
@@ -171,8 +171,6 @@ Generates platform-specific distributables in the `out/make` directory.
 | Key | Action |
 |-----|--------|
 | F1-F12 | Quick-add products in current category |
-| Ctrl+Enter | Process payment |
-| Escape | Cancel current operation |
 
 ## Architectural Decisions
 

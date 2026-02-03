@@ -80,7 +80,7 @@ describe('BroadcastService', () => {
       // Simulate a state change
       const newState = {
         version: 2,
-        cart: [{ sku: 'TEST', name: 'Test', priceInCents: cents(100), quantity: 1 }],
+        cart: [{ id: 'item-1', sku: 'TEST', name: 'Test', priceInCents: cents(100), quantity: 1 }],
         totalInCents: cents(100),
         transactionStatus: 'IDLE' as const,
         retryCount: 0,

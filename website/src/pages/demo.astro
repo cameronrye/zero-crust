@@ -5,19 +5,28 @@ const title = "Zero Crust POS Demo";
 const description = "Interactive web demo of Zero Crust POS Simulator showcasing the dual-window architecture.";
 const siteUrl = "https://zerocrust.net";
 const ogImage = `${siteUrl}/og-image.png`;
-const themeColor = "#f97316";
 ---
 
 <!doctype html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
     <title>{title}</title>
     <meta name="title" content={title} />
     <meta name="description" content={description} />
-    <meta name="theme-color" content={themeColor} />
+    <meta name="theme-color" content="#0f172a" />
     <link rel="canonical" href={`${siteUrl}/demo`} />
+    <!-- PWA Meta Tags -->
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="Zero Crust" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <!-- iOS specific -->
+    <meta name="format-detection" content="telephone=no" />
+
+    <!-- Open Graph -->
     <meta property="og:type" content="website" />
     <meta property="og:url" content={`${siteUrl}/demo`} />
     <meta property="og:title" content={title} />

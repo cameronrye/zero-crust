@@ -55,7 +55,6 @@ export const WINDOW_SAFE_AREAS = {
  * Includes WebkitAppRegion for Electron window dragging
  */
 export const DRAG_REGION_STYLE = {
-  // @ts-expect-error - WebKit-specific CSS property for Electron
   WebkitAppRegion: 'drag',
   paddingLeft: WINDOW_SAFE_AREAS.left,
   paddingRight: WINDOW_SAFE_AREAS.right,

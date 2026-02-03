@@ -95,9 +95,8 @@ function TransactionsTable({ transactions }: TransactionsTableProps) {
   );
 
   const handleRowClick = (transactionId: string) => {
-    window.electronAPI.showReceipt(transactionId).catch((error) => {
-      console.error('Failed to show receipt:', error);
-    });
+    // Silently ignore errors - receipt window may fail to open but UX continues
+    void window.electronAPI.showReceipt(transactionId);
   };
 
   if (sortedTransactions.length === 0) {

@@ -46,9 +46,9 @@ export function usePOSMetrics(): POSMetricsResult {
       setMetrics(newMetrics);
     });
 
-    // Fetch initial metrics on mount
-    window.electronAPI.getMetrics().then(setMetrics).catch((error) => {
-      console.error('Failed to fetch initial metrics:', error);
+    // Fetch initial metrics on mount (silently ignore errors - metrics are non-critical)
+    window.electronAPI.getMetrics().then(setMetrics).catch(() => {
+      // Metrics fetch failed - continue without initial metrics
     });
 
     return unsubscribe;

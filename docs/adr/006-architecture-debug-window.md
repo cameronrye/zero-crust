@@ -1,4 +1,4 @@
-# ADR-007: Architecture Debug Window
+# ADR-006: Architecture Debug Window
 
 ## Status
 

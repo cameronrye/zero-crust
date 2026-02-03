@@ -73,7 +73,6 @@ export function usePOSState(): POSStateResult {
   // Subscribe to state updates from Main process
   useEffect(() => {
     const unsubscribe = window.electronAPI.onStateUpdate((newState) => {
-      console.log('Received state update:', newState.version);
       setState(newState);
       // Clear any previous errors on successful state update
       setError(null);
@@ -81,7 +80,6 @@ export function usePOSState(): POSStateResult {
 
     // Request initial state after subscribing
     window.electronAPI.requestInitialState().catch((err) => {
-      console.error('Failed to request initial state:', err);
       setError({
         message: 'Failed to connect to the POS system. Please try again.',
         code: 'INITIAL_STATE_FAILED',

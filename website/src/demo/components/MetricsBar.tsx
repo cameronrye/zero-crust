@@ -13,7 +13,7 @@ interface MetricsBarProps {
 
 export function MetricsBar({ metrics }: Readonly<MetricsBarProps>) {
   return (
-    <div className="flex items-center gap-4 px-4 py-2 bg-slate-800 border-b border-slate-700 text-xs">
+    <div className="flex flex-wrap items-center gap-x-4 gap-y-1 px-4 py-2 bg-slate-800 border-b border-slate-700 text-xs">
       <div className="flex items-center gap-1.5">
         <span className="text-gray-400">TPM:</span>
         <span className="font-medium text-emerald-400">

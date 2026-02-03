@@ -8,6 +8,7 @@
  */
 
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { cents } from '@shared/currency';
 
 // Mock dependencies before importing DemoLoopService
 vi.mock('./Logger', () => ({
@@ -68,10 +69,10 @@ describe('DemoLoopService', () => {
         transactionStatus: 'IDLE',
         version: 1,
         cart: [],
-        totalInCents: 0,
+        totalInCents: cents(0),
         retryCount: 0,
         demoLoopRunning: false,
-      } as ReturnType<typeof mainStore.getState>);
+      });
 
       const result = demoLoopService.start();
 
@@ -85,10 +86,10 @@ describe('DemoLoopService', () => {
         transactionStatus: 'IDLE',
         version: 1,
         cart: [],
-        totalInCents: 0,
+        totalInCents: cents(0),
         retryCount: 0,
         demoLoopRunning: false,
-      } as ReturnType<typeof mainStore.getState>);
+      });
 
       demoLoopService.start();
       const result = demoLoopService.start();
@@ -102,10 +103,10 @@ describe('DemoLoopService', () => {
         transactionStatus: 'PROCESSING',
         version: 1,
         cart: [],
-        totalInCents: 0,
+        totalInCents: cents(0),
         retryCount: 0,
         demoLoopRunning: false,
-      } as ReturnType<typeof mainStore.getState>);
+      });
 
       const result = demoLoopService.start();
 
@@ -120,10 +121,10 @@ describe('DemoLoopService', () => {
         transactionStatus: 'IDLE',
         version: 1,
         cart: [],
-        totalInCents: 0,
+        totalInCents: cents(0),
         retryCount: 0,
         demoLoopRunning: false,
-      } as ReturnType<typeof mainStore.getState>);
+      });
 
       demoLoopService.start();
       const result = demoLoopService.stop();

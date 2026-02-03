@@ -11,14 +11,10 @@ import type { WindowId } from '@shared/ipc-types';
 
 export default function App() {
   // Window ID is static - determined at load time from URL params
-  // Use useMemo to compute once and log during initial render
   const windowId = useMemo<WindowId | null>(() => {
     if (window.electronAPI) {
-      const id = window.electronAPI.getWindowId();
-      console.log(`Window initialized as: ${id}`);
-      return id;
+      return window.electronAPI.getWindowId();
     }
-    console.error('electronAPI not available - preload script may not be loaded');
     return null;
   }, []);
 

@@ -73,6 +73,7 @@ class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
 }
 
 type ViewTab = 'pos' | 'transactions' | 'debugger';
+type MobilePanel = 'cashier' | 'customer';
 
 function CashierPanel() {
   const [selectedCategory, setSelectedCategory] = useState<ProductCategory>('pizza');
@@ -152,9 +153,9 @@ function CustomerPanel() {
 function DebuggerPanel() {
   const { events, stats, isConnected, clearEvents } = useTraceEvents();
   return (
-    <div className="h-full flex">
+    <div className="h-full flex flex-col md:flex-row">
       {/* Event Timeline */}
-      <div className="flex-1 min-w-0 border-r border-slate-700">
+      <div className="flex-1 min-w-0 md:border-r border-slate-700 border-b md:border-b-0">
         <SimpleArchDebugger
           events={events}
           stats={stats}
@@ -162,8 +163,8 @@ function DebuggerPanel() {
           onClear={clearEvents}
         />
       </div>
-      {/* State Inspector */}
-      <div className="w-80 shrink-0">
+      {/* State Inspector - hidden on mobile, visible on desktop */}
+      <div className="hidden md:block w-80 shrink-0">
         <StateInspector events={events} />
       </div>
     </div>
@@ -172,6 +173,7 @@ function DebuggerPanel() {
 
 function DemoContent() {
   const [activeTab, setActiveTab] = useState<ViewTab>('pos');
+  const [mobilePanel, setMobilePanel] = useState<MobilePanel>('cashier');
   const { state, isLocked } = usePOSState();
   const commands = usePOSCommands();
 
@@ -247,22 +249,45 @@ function DemoContent() {
       {/* Tab Content */}
       <div className="flex-1 overflow-hidden">
         {activeTab === 'pos' && (
-          <div className="h-full flex">
-            {/* Cashier Window (left) */}
-            <div className="flex-1 border-r border-slate-700 min-w-0">
-              <div className="h-8 bg-slate-800 flex items-center justify-center text-xs text-gray-400 border-b border-slate-700">
+          <div className="h-full flex flex-col md:flex-row">
+            {/* Mobile Panel Toggle - hidden on desktop */}
+            <div className="flex md:hidden border-b border-slate-700 shrink-0">
+              <button
+                onClick={() => setMobilePanel('cashier')}
+                className={`flex-1 py-2 text-sm font-medium transition-colors ${
+                  mobilePanel === 'cashier'
+                    ? 'bg-slate-800 text-amber-400 border-b-2 border-amber-500'
+                    : 'bg-slate-900 text-gray-400'
+                }`}
+              >
+                Cashier
+              </button>
+              <button
+                onClick={() => setMobilePanel('customer')}
+                className={`flex-1 py-2 text-sm font-medium transition-colors ${
+                  mobilePanel === 'customer'
+                    ? 'bg-slate-800 text-amber-400 border-b-2 border-amber-500'
+                    : 'bg-slate-900 text-gray-400'
+                }`}
+              >
+                Customer
+              </button>
+            </div>
+            {/* Cashier Window - full width on mobile, flex-1 on desktop */}
+            <div className={`flex-1 md:border-r border-slate-700 min-w-0 ${mobilePanel === 'cashier' ? '' : 'hidden md:block'}`}>
+              <div className="h-8 bg-slate-800 hidden md:flex items-center justify-center text-xs text-gray-400 border-b border-slate-700">
                 Cashier Window
               </div>
-              <div className="h-[calc(100%-2rem)]">
+              <div className="h-full md:h-[calc(100%-2rem)]">
                 <CashierPanel />
               </div>
             </div>
-            {/* Customer Window (right) */}
-            <div className="w-80 min-w-64 shrink-0">
-              <div className="h-8 bg-slate-800 flex items-center justify-center text-xs text-gray-400 border-b border-slate-700">
+            {/* Customer Window - full width on mobile, fixed width on desktop */}
+            <div className={`flex-1 md:flex-none md:w-80 md:min-w-64 md:shrink-0 ${mobilePanel === 'customer' ? '' : 'hidden md:block'}`}>
+              <div className="h-8 bg-slate-800 hidden md:flex items-center justify-center text-xs text-gray-400 border-b border-slate-700">
                 Customer Display
               </div>
-              <div className="h-[calc(100%-2rem)]">
+              <div className="h-full md:h-[calc(100%-2rem)]">
                 <CustomerPanel />
               </div>
             </div>

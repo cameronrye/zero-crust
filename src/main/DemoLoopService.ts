@@ -42,7 +42,6 @@ function randomDelay(range: readonly [number, number]): number {
 class DemoLoopService {
   private isRunning = false;
   private abortController: AbortController | null = null;
-  private loopPromise: Promise<void> | null = null;
 
   /**
    * Check if demo loop is currently running
@@ -73,7 +72,7 @@ class DemoLoopService {
     this.abortController = new AbortController();
 
     // Start the loop (don't await - runs in background)
-    this.loopPromise = this.runLoop(this.abortController.signal);
+    void this.runLoop(this.abortController.signal);
 
     // Broadcast state update
     mainStore.setDemoLoopRunning(true);

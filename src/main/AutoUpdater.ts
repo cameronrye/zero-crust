@@ -71,12 +71,15 @@ export async function checkForUpdatesManually(): Promise<void> {
   // In development mode, show a message that updates are disabled
   if (MAIN_WINDOW_VITE_DEV_SERVER_URL) {
     const focusedWindow = BrowserWindow.getFocusedWindow();
-    await dialog.showMessageBox(focusedWindow ?? undefined as never, {
-      type: 'info',
+    const options = {
+      type: 'info' as const,
       title: 'Development Mode',
       message: 'Update checking is disabled in development mode.',
       buttons: ['OK'],
-    });
+    };
+    await (focusedWindow
+      ? dialog.showMessageBox(focusedWindow, options)
+      : dialog.showMessageBox(options));
     return;
   }
 
@@ -87,12 +90,15 @@ export async function checkForUpdatesManually(): Promise<void> {
     // If no update is available, inform the user
     if (!result || !result.updateInfo) {
       const focusedWindow = BrowserWindow.getFocusedWindow();
-      await dialog.showMessageBox(focusedWindow ?? undefined as never, {
-        type: 'info',
+      const options = {
+        type: 'info' as const,
         title: 'No Updates Available',
         message: 'You are running the latest version.',
         buttons: ['OK'],
-      });
+      };
+      await (focusedWindow
+        ? dialog.showMessageBox(focusedWindow, options)
+        : dialog.showMessageBox(options));
     }
     // If update is available, the existing event handler will show the download prompt
   } catch (error) {
@@ -101,13 +107,16 @@ export async function checkForUpdatesManually(): Promise<void> {
     });
 
     const focusedWindow = BrowserWindow.getFocusedWindow();
-    await dialog.showMessageBox(focusedWindow ?? undefined as never, {
-      type: 'error',
+    const options = {
+      type: 'error' as const,
       title: 'Update Check Failed',
       message: 'Could not check for updates.',
       detail: error instanceof Error ? error.message : String(error),
       buttons: ['OK'],
-    });
+    };
+    await (focusedWindow
+      ? dialog.showMessageBox(focusedWindow, options)
+      : dialog.showMessageBox(options));
   }
 }
 
@@ -154,16 +163,19 @@ function setupUpdateEventHandlers(): void {
  */
 async function promptUserForUpdate(info: UpdateInfo): Promise<void> {
   const focusedWindow = BrowserWindow.getFocusedWindow();
-
-  const result = await dialog.showMessageBox(focusedWindow ?? undefined as never, {
-    type: 'info',
+  const options = {
+    type: 'info' as const,
     title: 'Update Available',
     message: `A new version (${info.version}) is available.`,
     detail: 'Would you like to download it now? The update will be installed when you restart the application.',
     buttons: ['Download', 'Later'],
     defaultId: 0,
     cancelId: 1,
-  });
+  };
+
+  const result = await (focusedWindow
+    ? dialog.showMessageBox(focusedWindow, options)
+    : dialog.showMessageBox(options));
 
   if (result.response === 0) {
     logger.info('User accepted update download');
@@ -178,16 +190,19 @@ async function promptUserForUpdate(info: UpdateInfo): Promise<void> {
  */
 async function promptUserToRestart(info: UpdateInfo): Promise<void> {
   const focusedWindow = BrowserWindow.getFocusedWindow();
-
-  const result = await dialog.showMessageBox(focusedWindow ?? undefined as never, {
-    type: 'info',
+  const options = {
+    type: 'info' as const,
     title: 'Update Ready',
     message: `Version ${info.version} has been downloaded.`,
     detail: 'The application will restart to install the update.',
     buttons: ['Restart Now', 'Later'],
     defaultId: 0,
     cancelId: 1,
-  });
+  };
+
+  const result = await (focusedWindow
+    ? dialog.showMessageBox(focusedWindow, options)
+    : dialog.showMessageBox(options));
 
   if (result.response === 0) {
     logger.info('User accepted restart for update');
