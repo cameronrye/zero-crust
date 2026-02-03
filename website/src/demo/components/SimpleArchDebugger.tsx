@@ -347,12 +347,12 @@ export function SimpleArchDebugger({ events, stats, isConnected, onClear }: Simp
                     <span className="text-gray-500 shrink-0">{formatTime(event.timestamp)}</span>
 
                     {/* Event type */}
-                    <span className={`${config.color} shrink-0 w-20`}>{config.label}</span>
+                    <span className={`${config.color} shrink-0 w-24`}>{config.label}</span>
 
                     {/* Source → Target */}
-                    <span className="text-gray-400 shrink-0 w-16 truncate">{event.source}</span>
+                    <span className="text-gray-400 shrink-0">{event.source}</span>
                     <span className="text-gray-600">→</span>
-                    <span className="text-gray-400 shrink-0 w-16 truncate">{event.target || 'all'}</span>
+                    <span className="text-gray-400 shrink-0">{event.target || 'all'}</span>
 
                     {/* Correlation indicator */}
                     {hasCorrelation && <span className="text-amber-500 shrink-0" title={`Correlation: ${event.correlationId}`}>⟲</span>}

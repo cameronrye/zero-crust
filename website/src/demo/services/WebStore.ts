@@ -622,7 +622,7 @@ class WebStore {
       return;
     }
 
-    const transactionId = this.state.pendingTransactionId || `TXN-${crypto.randomUUID().slice(0, 12).toUpperCase()}`;
+    const transactionId = this.state.pendingTransactionId || `TXN-${crypto.randomUUID().toUpperCase()}`;
     const amount = this.calculateTotal(this.state.cart);
 
     this.updateState((state) => {

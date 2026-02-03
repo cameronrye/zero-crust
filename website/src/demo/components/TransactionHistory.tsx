@@ -2,7 +2,7 @@
  * TransactionHistory - Transaction history table for the web demo
  */
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import type { TransactionRecord } from '../shared/types';
 import { formatCurrency } from '../shared/currency';
 import { useElectronAPI } from '../context/WebAPIContext';
@@ -14,6 +14,17 @@ export function TransactionHistory() {
   const [transactions, setTransactions] = useState<TransactionRecord[]>([]);
   const [loadingState, setLoadingState] = useState<LoadingState>('loading');
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [copiedId, setCopiedId] = useState<string | null>(null);
+
+  const copyToClipboard = useCallback(async (id: string) => {
+    try {
+      await navigator.clipboard.writeText(id);
+      setCopiedId(id);
+      setTimeout(() => setCopiedId(null), 2000);
+    } catch (err) {
+      console.error('Failed to copy:', err);
+    }
+  }, []);
 
   useEffect(() => {
     let mounted = true;
@@ -103,7 +114,17 @@ export function TransactionHistory() {
         <tbody className="divide-y divide-slate-700">
           {sortedTransactions.map((txn) => (
             <tr key={txn.id} className="hover:bg-slate-800/50">
-              <td className="px-4 py-3 font-mono text-xs">{txn.id.slice(0, 12)}...</td>
+              <td
+                onClick={() => copyToClipboard(txn.id)}
+                className="px-4 py-3 font-mono text-xs cursor-pointer hover:text-amber-400 transition-colors"
+                title="Click to copy"
+              >
+                {copiedId === txn.id ? (
+                  <span className="text-emerald-400">Copied!</span>
+                ) : (
+                  txn.id
+                )}
+              </td>
               <td className="px-4 py-3 text-gray-400">
                 {new Date(txn.timestamp).toLocaleTimeString()}
               </td>
