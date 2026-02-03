@@ -8,7 +8,7 @@ import globals from 'globals';
 export default tseslint.config(
   // Global ignores
   {
-    ignores: ['node_modules/**', 'dist/**', '.vite/**', 'out/**'],
+    ignores: ['node_modules/**', 'dist/**', '.vite/**', 'out/**', 'website/.astro/**', 'website/dist/**'],
   },
 
   // Node.js scripts configuration

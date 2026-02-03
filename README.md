@@ -5,11 +5,11 @@
 
   A virtualized dual-head point-of-sale system built with Electron, demonstrating enterprise-grade architecture patterns for high-volume retail environments.
 
-  [![Electron](https://img.shields.io/badge/Electron-36-47848F?logo=electron&logoColor=white)](https://www.electronjs.org/)
+  [![Electron](https://img.shields.io/badge/Electron-40-47848F?logo=electron&logoColor=white)](https://www.electronjs.org/)
   [![React](https://img.shields.io/badge/React-19-61DAFB?logo=react&logoColor=black)](https://react.dev/)
-  [![TypeScript](https://img.shields.io/badge/TypeScript-5.8-3178C6?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
+  [![TypeScript](https://img.shields.io/badge/TypeScript-5.9-3178C6?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
   [![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-4-06B6D4?logo=tailwindcss&logoColor=white)](https://tailwindcss.com/)
-  [![Vite](https://img.shields.io/badge/Vite-6-646CFF?logo=vite&logoColor=white)](https://vitejs.dev/)
+  [![Vite](https://img.shields.io/badge/Vite-5-646CFF?logo=vite&logoColor=white)](https://vitejs.dev/)
   [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 </div>
@@ -18,11 +18,11 @@
 
 | Platform | Download |
 |----------|----------|
-| macOS (Apple Silicon) | [Zero.Crust-darwin-arm64-1.1.4.zip](https://github.com/cameronrye/zero-crust/releases/download/v1.1.4/Zero.Crust-darwin-arm64-1.1.4.zip) |
-| macOS (Intel) | [Zero.Crust-darwin-x64-1.1.4.zip](https://github.com/cameronrye/zero-crust/releases/download/v1.1.4/Zero.Crust-darwin-x64-1.1.4.zip) |
-| Windows | [Zero.Crust-1.1.4.Setup.exe](https://github.com/cameronrye/zero-crust/releases/download/v1.1.4/Zero.Crust-1.1.4.Setup.exe) |
-| Linux (Debian/Ubuntu) | [zero-crust_1.1.4_amd64.deb](https://github.com/cameronrye/zero-crust/releases/download/v1.1.4/zero-crust_1.1.4_amd64.deb) |
-| Linux (Fedora/RHEL) | [zero-crust-1.1.4-1.x86_64.rpm](https://github.com/cameronrye/zero-crust/releases/download/v1.1.4/zero-crust-1.1.4-1.x86_64.rpm) |
+| macOS (Apple Silicon) | [Zero.Crust-darwin-arm64-1.1.8.zip](https://github.com/cameronrye/zero-crust/releases/download/v1.1.8/Zero.Crust-darwin-arm64-1.1.8.zip) |
+| macOS (Intel) | [Zero.Crust-darwin-x64-1.1.8.zip](https://github.com/cameronrye/zero-crust/releases/download/v1.1.8/Zero.Crust-darwin-x64-1.1.8.zip) |
+| Windows | [Zero.Crust-1.1.8.Setup.exe](https://github.com/cameronrye/zero-crust/releases/download/v1.1.8/Zero.Crust-1.1.8.Setup.exe) |
+| Linux (Debian/Ubuntu) | [zero-crust_1.1.8_amd64.deb](https://github.com/cameronrye/zero-crust/releases/download/v1.1.8/zero-crust_1.1.8_amd64.deb) |
+| Linux (Fedora/RHEL) | [zero-crust-1.1.8-1.x86_64.rpm](https://github.com/cameronrye/zero-crust/releases/download/v1.1.8/zero-crust-1.1.8-1.x86_64.rpm) |
 
 [View all releases](https://github.com/cameronrye/zero-crust/releases)
 
@@ -93,7 +93,7 @@ Zero Crust is a POS simulator designed to explore and validate architectural pat
 
 | Category | Technology |
 |----------|------------|
-| Framework | Electron 36 with Vite 6 |
+| Framework | Electron 40 with Vite 5 |
 | Language | TypeScript (strict mode) |
 | UI | React 19 |
 | Styling | Tailwind CSS 4 |
@@ -278,4 +278,4 @@ MIT
 
 ---
 
-Made with ❤️ by [Cameron Rye](https://rye.dev/)
+Made with ❤️ & 🍕 by [Cameron Rye](https://rye.dev/)

@@ -1,0 +1,62 @@
+---
+import POSDemo from "../demo/POSDemo";
+
+const title = "Zero Crust POS Demo";
+const description = "Interactive web demo of Zero Crust POS Simulator showcasing the dual-window architecture.";
+const siteUrl = "https://zerocrust.net";
+const ogImage = `${siteUrl}/og-image.png`;
+const themeColor = "#f97316";
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{title}</title>
+    <meta name="title" content={title} />
+    <meta name="description" content={description} />
+    <meta name="theme-color" content={themeColor} />
+    <link rel="canonical" href={`${siteUrl}/demo`} />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content={`${siteUrl}/demo`} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:image" content={ogImage} />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  </head>
+  <body class="min-h-screen bg-slate-950 text-gray-100 font-sans antialiased overflow-hidden">
+    <div id="demo-root" class="h-screen w-screen">
+      <!-- Loading skeleton shown while React hydrates -->
+      <div id="loading-skeleton" class="h-full w-full flex items-center justify-center">
+        <div class="text-center">
+          <div class="w-12 h-12 border-4 border-amber-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <p class="text-gray-400 text-sm">Loading POS Demo...</p>
+        </div>
+      </div>
+      <POSDemo client:load />
+    </div>
+    <script>
+      // Hide loading skeleton once React hydrates
+      document.addEventListener('DOMContentLoaded', () => {
+        const observer = new MutationObserver(() => {
+          const skeleton = document.getElementById('loading-skeleton');
+          const root = document.getElementById('demo-root');
+          if (skeleton && root && root.children.length > 1) {
+            skeleton.style.display = 'none';
+            observer.disconnect();
+          }
+        });
+        observer.observe(document.getElementById('demo-root') || document.body, {
+          childList: true,
+          subtree: true
+        });
+      });
+    </script>
+  </body>
+</html>
+
+<style is:global>
+  @import "../styles/global.css";
+</style>
+

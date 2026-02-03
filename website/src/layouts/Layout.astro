@@ -9,7 +9,7 @@ const {
   description = "A virtualized dual-head point-of-sale system built with Electron, demonstrating enterprise-grade architecture patterns for high-volume retail environments.",
 } = Astro.props;
 
-const siteUrl = "https://cameronrye.github.io/zero-crust";
+const siteUrl = "https://zerocrust.net";
 const ogImage = `${siteUrl}/og-image.png`;
 const author = "Cameron Rye";
 const keywords = "POS, point of sale, Electron, React, TypeScript, dual-head display, restaurant software, architecture demo, IPC, state management";
@@ -34,7 +34,7 @@ const structuredData = {
     "priceCurrency": "USD"
   },
   "downloadUrl": "https://github.com/cameronrye/zero-crust/releases",
-  "softwareVersion": "1.1.1",
+  "softwareVersion": "1.1.8",
   "screenshot": `${siteUrl}/screenshots/cashier.png`,
   "url": siteUrl
 };
@@ -85,8 +85,8 @@ const structuredData = {
     <meta name="twitter:creator" content="@cameronrye" />
 
     <!-- Favicon -->
-    <link rel="icon" type="image/svg+xml" href="/zero-crust/favicon.svg" />
-    <link rel="apple-touch-icon" href="/zero-crust/og-image.png" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="apple-touch-icon" href="/og-image.png" />
 
     <!-- Structured Data -->
     <script is:inline type="application/ld+json" set:html={JSON.stringify(structuredData)} />

@@ -1,0 +1,85 @@
+/**
+ * CartSidebar - Cart display with items list and payment actions (Web version)
+ */
+
+import type { AppState, CartItem } from '../shared/types';
+import type { Cents } from '../shared/currency';
+import { CartItemRow } from './CartItemRow';
+import { PaymentActions } from './PaymentActions';
+import { STATUS_BADGE_COLORS } from '../utils/status';
+import { RETRY_CONFIG } from '../shared/config';
+
+interface CartSidebarProps {
+  state: AppState | null;
+  onRemoveItem: (sku: string, index: number) => void;
+  onUpdateQuantity: (sku: string, index: number, quantity: number) => void;
+  onClearCart: () => void;
+  onCheckout: () => void;
+  onProcessPayment: () => void;
+  onRetryPayment: () => void;
+  onNewTransaction: () => void;
+  onCancelCheckout: () => void;
+}
+
+export function CartSidebar({
+  state,
+  onRemoveItem,
+  onUpdateQuantity,
+  onClearCart,
+  onCheckout,
+  onProcessPayment,
+  onRetryPayment,
+  onNewTransaction,
+  onCancelCheckout,
+}: CartSidebarProps) {
+  const status = state?.transactionStatus ?? 'IDLE';
+  const isLocked = status !== 'IDLE';
+  const isError = status === 'ERROR';
+  const canRetry = isError && (state?.retryCount ?? 0) < RETRY_CONFIG.maxRetries;
+
+  return (
+    <div className="w-80 bg-slate-800 border-l border-slate-700 flex flex-col min-h-0">
+      <div className="p-4 border-b border-slate-700 shrink-0 flex items-center justify-between">
+        <h2 className="font-bold text-lg">Current Order</h2>
+        <span className={`px-3 py-1 rounded text-sm font-bold ${STATUS_BADGE_COLORS[status]}`}>
+          {status}
+        </span>
+      </div>
+
+      <div className="flex-1 overflow-y-auto p-4 min-h-0">
+        {!state || state.cart.length === 0 ? (
+          <p className="text-gray-500 italic text-center py-8">Cart is empty</p>
+        ) : (
+          <div className="space-y-3">
+            {state.cart.map((item: CartItem, index: number) => (
+              <CartItemRow
+                key={item.id}
+                item={item}
+                disabled={isLocked}
+                onRemove={() => onRemoveItem(item.sku, index)}
+                onUpdateQuantity={(qty) => onUpdateQuantity(item.sku, index, qty)}
+              />
+            ))}
+          </div>
+        )}
+      </div>
+
+      <div className="shrink-0">
+        <PaymentActions
+          status={status}
+          totalInCents={state?.totalInCents ?? (0 as Cents)}
+          errorMessage={state?.errorMessage}
+          cartLength={state?.cart.length ?? 0}
+          canRetry={canRetry}
+          onClearCart={onClearCart}
+          onCheckout={onCheckout}
+          onProcessPayment={onProcessPayment}
+          onRetryPayment={onRetryPayment}
+          onNewTransaction={onNewTransaction}
+          onCancelCheckout={onCancelCheckout}
+        />
+      </div>
+    </div>
+  );
+}
+

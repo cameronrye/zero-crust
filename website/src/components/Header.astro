@@ -4,6 +4,7 @@ const navLinks = [
   { href: "#screenshots", label: "Screenshots" },
   { href: "#architecture", label: "Architecture" },
   { href: "#download", label: "Download" },
+  { href: "/demo", label: "Demo", external: true },
 ];
 ---
 
@@ -15,7 +16,7 @@ const navLinks = [
       <!-- Logo -->
       <a href="#" class="flex items-center gap-3 group">
         <img
-          src="/zero-crust/favicon.svg"
+          src="/favicon.svg"
           alt="Zero Crust Logo"
           class="w-8 h-8 transition-transform group-hover:scale-110"
         />
@@ -28,6 +29,8 @@ const navLinks = [
           navLinks.map((link) => (
             <a
               href={link.href}
+              target={link.external ? "_blank" : undefined}
+              rel={link.external ? "noopener noreferrer" : undefined}
               class="text-sm text-zinc-400 hover:text-brand-500 transition-colors"
             >
               {link.label}
@@ -72,6 +75,8 @@ const navLinks = [
         navLinks.map((link) => (
           <a
             href={link.href}
+            target={link.external ? "_blank" : undefined}
+            rel={link.external ? "noopener noreferrer" : undefined}
             class="block py-2 text-zinc-400 hover:text-brand-500 transition-colors"
           >
             {link.label}

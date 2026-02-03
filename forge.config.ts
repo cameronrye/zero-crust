@@ -173,7 +173,7 @@ const config: ForgeConfig = {
   // electron-updater requires this file to know where to check for updates.
   // ==========================================================================
   hooks: {
-    packageAfterCopy: async (forgeConfig, buildPath, electronVersion, platform, arch) => {
+    packageAfterCopy: async (forgeConfig, buildPath, electronVersion, platform, _arch) => {
       // Generate app-update.yml for electron-updater
       // This file tells electron-updater where to check for updates
       const appUpdateYml = `provider: github
