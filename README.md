@@ -278,4 +278,4 @@ MIT
 
 ---
 
-Made with ❤️ & 🍕 by [Cameron Rye](https://rye.dev/)
+Made with ❤️ and 🍕 by [Cameron Rye](https://rye.dev/)
