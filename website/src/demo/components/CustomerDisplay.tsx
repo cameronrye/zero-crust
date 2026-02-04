@@ -32,7 +32,7 @@ export function CustomerDisplay({ state }: Readonly<CustomerDisplayProps>) {
       </div>
 
       {/* Main Content */}
-      <div className="flex-1 flex flex-col p-2 md:p-4 pb-[max(0.5rem,env(safe-area-inset-bottom))] md:pb-[max(1rem,env(safe-area-inset-bottom))] min-h-0 overflow-hidden">
+      <div className="flex-1 flex flex-col p-2 md:p-4 pb-[calc(0.5rem+env(safe-area-inset-bottom,0px))] md:pb-[calc(1rem+env(safe-area-inset-bottom,0px))] min-h-0 overflow-hidden">
         {/* Status Message */}
         <div className="text-center mb-2 md:mb-4 shrink-0">
           <p className={`text-base md:text-xl font-bold ${STATUS_TEXT_COLORS[status]}`}>

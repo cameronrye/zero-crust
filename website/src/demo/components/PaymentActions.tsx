@@ -39,7 +39,7 @@ export function PaymentActions({
   const isPaid = status === 'PAID';
 
   return (
-    <div className="p-2 md:p-4 pb-[max(0.5rem,env(safe-area-inset-bottom))] md:pb-[max(1rem,env(safe-area-inset-bottom))] border-t border-slate-700 bg-slate-800">
+    <div className="p-2 md:p-4 pb-[calc(0.5rem+env(safe-area-inset-bottom,0px))] md:pb-[calc(1rem+env(safe-area-inset-bottom,0px))] border-t border-slate-700 bg-slate-800">
       {isError && errorMessage && (
         <div className="mb-2 md:mb-4 p-2 md:p-3 bg-rose-900/50 border border-rose-700 rounded text-rose-200 text-xs md:text-sm">
           {errorMessage}
