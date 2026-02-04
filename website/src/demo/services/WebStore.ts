@@ -41,6 +41,13 @@ type StateListener = (state: AppState) => void;
 type TransactionsListener = (transactions: TransactionRecord[]) => void;
 type MetricsListener = (metrics: Metrics) => void;
 type InventoryListener = (inventory: InventoryItem[]) => void;
+type StorageErrorListener = (error: StorageError) => void;
+
+export interface StorageError {
+  type: 'load' | 'save' | 'clear';
+  message: string;
+  timestamp: number;
+}
 
 interface InternalState {
   version: number;
@@ -58,6 +65,7 @@ class WebStore {
   private readonly transactionsListeners: Set<TransactionsListener> = new Set();
   private readonly metricsListeners: Set<MetricsListener> = new Set();
   private readonly inventoryListeners: Set<InventoryListener> = new Set();
+  private readonly storageErrorListeners: Set<StorageErrorListener> = new Set();
   private transactions: TransactionRecord[] = [];
   private readonly inventory: Map<string, number> = new Map();
   private metrics: Metrics = {
@@ -92,11 +100,24 @@ class WebStore {
   }
 
   /**
-   * Get today's date as a string (YYYY-MM-DD) in local timezone
+   * Get today's date as a string (YYYY-MM-DD) in UTC
+   * Using UTC avoids timezone boundary edge cases where metrics could reset
+   * at inconsistent times depending on user location.
    */
   private getTodayDateString(): string {
     const now = new Date();
-    return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+    return `${now.getUTCFullYear()}-${String(now.getUTCMonth() + 1).padStart(2, '0')}-${String(now.getUTCDate()).padStart(2, '0')}`;
+  }
+
+  /**
+   * Get date string (YYYY-MM-DD) in UTC from a timestamp
+   */
+  private getDateStringFromTimestamp(timestamp: string): string | null {
+    const date = new Date(timestamp);
+    if (Number.isNaN(date.getTime())) {
+      return null;
+    }
+    return `${date.getUTCFullYear()}-${String(date.getUTCMonth() + 1).padStart(2, '0')}-${String(date.getUTCDate()).padStart(2, '0')}`;
   }
 
   /**
@@ -131,18 +152,13 @@ class WebStore {
   }
 
   /**
-   * Reset daily metrics (called at midnight)
+   * Reset daily metrics (called at midnight UTC)
    */
   private resetDailyMetrics(): void {
-    // Filter transactions to only include today's
+    // Filter transactions to only include today's (using UTC for consistency)
     const today = this.getTodayDateString();
     const todayTransactions = this.transactions.filter((t) => {
-      const txDate = new Date(t.timestamp);
-      // Check for invalid date
-      if (Number.isNaN(txDate.getTime())) {
-        return false;
-      }
-      const txDateStr = `${txDate.getFullYear()}-${String(txDate.getMonth() + 1).padStart(2, '0')}-${String(txDate.getDate()).padStart(2, '0')}`;
+      const txDateStr = this.getDateStringFromTimestamp(t.timestamp);
       return txDateStr === today;
     });
 
@@ -231,7 +247,9 @@ class WebStore {
         }
       }
     } catch (error) {
+      const message = error instanceof Error ? error.message : 'Unknown error loading data';
       console.warn('Failed to load from localStorage:', error);
+      this.notifyStorageError('load', message);
     }
   }
 
@@ -248,7 +266,9 @@ class WebStore {
       localStorage.setItem(STORAGE_KEY_METRICS, JSON.stringify(this.metrics));
       localStorage.setItem(STORAGE_KEY_INVENTORY, JSON.stringify(Object.fromEntries(this.inventory)));
     } catch (error) {
+      const message = error instanceof Error ? error.message : 'Unknown error saving data';
       console.warn('Failed to save to localStorage:', error);
+      this.notifyStorageError('save', message);
     }
   }
 
@@ -306,6 +326,26 @@ class WebStore {
   subscribeInventory(listener: InventoryListener): () => void {
     this.inventoryListeners.add(listener);
     return () => this.inventoryListeners.delete(listener);
+  }
+
+  subscribeStorageErrors(listener: StorageErrorListener): () => void {
+    this.storageErrorListeners.add(listener);
+    return () => this.storageErrorListeners.delete(listener);
+  }
+
+  private notifyStorageError(type: StorageError['type'], message: string): void {
+    const error: StorageError = {
+      type,
+      message,
+      timestamp: Date.now(),
+    };
+    for (const listener of this.storageErrorListeners) {
+      try {
+        listener(error);
+      } catch (e) {
+        console.error('Error in storage error listener:', e);
+      }
+    }
   }
 
   private notifyStateListeners(): void {
@@ -786,7 +826,9 @@ class WebStore {
         localStorage.removeItem(STORAGE_KEY_INVENTORY);
         localStorage.setItem(STORAGE_KEY_LAST_RESET_DATE, this.lastResetDate);
       } catch (error) {
+        const message = error instanceof Error ? error.message : 'Unknown error clearing data';
         console.warn('Failed to clear localStorage:', error);
+        this.notifyStorageError('clear', message);
       }
     }
 

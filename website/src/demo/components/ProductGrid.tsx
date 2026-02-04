@@ -40,16 +40,16 @@ export function ProductGrid({
   );
 
   return (
-    <div className="flex-1 flex flex-col p-4 overflow-hidden">
+    <div className="flex-1 flex flex-col p-2 md:p-4 overflow-hidden">
       {/* Category Tabs */}
-      <nav className="flex gap-2 mb-4 flex-wrap items-center" aria-label="Product categories">
+      <nav className="flex gap-1 md:gap-2 mb-2 md:mb-4 flex-wrap items-center" aria-label="Product categories">
         {PRODUCT_CATEGORIES.map((cat) => (
           <button
             key={cat}
             onClick={() => onCategoryChange(cat)}
             disabled={isLocked}
             aria-pressed={selectedCategory === cat}
-            className={`px-4 py-2 rounded font-medium capitalize transition-colors ${
+            className={`px-2 md:px-4 py-1.5 md:py-2 rounded text-xs md:text-base font-medium capitalize transition-colors ${
               selectedCategory === cat
                 ? 'bg-amber-600 text-white'
                 : 'bg-slate-700 text-gray-300 hover:bg-slate-600'
@@ -63,7 +63,7 @@ export function ProductGrid({
           onClick={onDemoOrder}
           disabled={isLocked || demoLoopRunning}
           aria-label="Generate a random demo order"
-          className={`px-4 py-2 rounded font-medium transition-colors ${
+          className={`px-2 md:px-4 py-1.5 md:py-2 rounded text-xs md:text-base font-medium transition-colors ${
             isLocked || demoLoopRunning
               ? 'bg-slate-700 text-gray-500 cursor-not-allowed'
               : 'bg-emerald-600 text-white hover:bg-emerald-500 cursor-pointer'
@@ -74,7 +74,7 @@ export function ProductGrid({
       </nav>
 
       {/* Product Grid */}
-      <section className="grid grid-cols-2 lg:grid-cols-3 gap-3 overflow-y-auto flex-1" aria-label="Products">
+      <section className="grid grid-cols-2 lg:grid-cols-3 gap-1.5 md:gap-3 overflow-y-auto flex-1" aria-label="Products">
         {categoryProducts.map((product, index) => {
           const fKey = index < 12 ? `F${index + 1}` : null;
           const shortcutSuffix = fKey ? `, shortcut ${fKey}` : '';
@@ -95,39 +95,28 @@ export function ProductGrid({
           if (isOutOfStock) buttonClass = 'opacity-40 cursor-not-allowed border-slate-700';
           else if (isDisabled) buttonClass = 'opacity-50 cursor-not-allowed border-slate-700';
 
-          // Determine stock indicator color
-          let stockColorClass = 'text-gray-500';
-          if (isOutOfStock) stockColorClass = 'text-red-400';
-          else if (isLowStock) stockColorClass = 'text-amber-400';
-
           return (
             <button
               key={product.sku}
               onClick={() => onAddItem(product.sku)}
               disabled={isDisabled}
               aria-label={ariaLabel}
-              className={`bg-slate-800 p-4 rounded-lg text-left border transition-all relative ${buttonClass}`}
+              className={`bg-slate-800 p-2 md:p-4 rounded-lg text-left border transition-all relative ${buttonClass}`}
             >
-              {/* F-key shortcut indicator - visible hint, included in aria-label */}
+              {/* F-key shortcut indicator - hidden on mobile, visible on desktop */}
               {showShortcuts && fKey && !isDisabled && (
                 <span
-                  className="absolute top-1 right-1 text-[10px] text-gray-500 bg-slate-900/80 px-1.5 py-0.5 rounded font-mono"
+                  className="hidden md:block absolute top-1 right-1 text-[10px] text-gray-500 bg-slate-900/80 px-1.5 py-0.5 rounded font-mono"
                   aria-hidden="true"
                 >
                   {fKey}
                 </span>
               )}
-              <div className="font-semibold text-sm mb-1">{product.name}</div>
+              <div className="font-semibold text-xs md:text-sm mb-0.5 md:mb-1">{product.name}</div>
               <div className="flex items-center justify-between">
-                <span className="text-amber-400 font-bold">
+                <span className="text-amber-400 font-bold text-sm md:text-base">
                   {formatCurrency(product.priceInCents)}
                 </span>
-                {/* Stock indicator */}
-                {stockBySku && (
-                  <span className={`text-[10px] font-medium ${stockColorClass}`}>
-                    {isOutOfStock ? 'Out of stock' : `${stock} left`}
-                  </span>
-                )}
               </div>
             </button>
           );

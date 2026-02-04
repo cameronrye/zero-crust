@@ -3,19 +3,22 @@ import tailwindcss from '@tailwindcss/vite';
 import sitemap from '@astrojs/sitemap';
 import react from '@astrojs/react';
 import AstroPWA from '@vite-pwa/astro';
+import critters from 'astro-critters';
 
 export default defineConfig({
   site: 'https://zerocrust.net',
   integrations: [
     sitemap(),
     react(),
+    critters(),
     AstroPWA({
       mode: 'production',
       base: '/',
       scope: '/',
-      includeAssets: ['favicon.svg', 'og-image.png', 'screenshots/*.png'],
+      includeAssets: ['favicon.svg', 'og-image.png', 'apple-touch-icon.png', 'screenshots/*.png', 'screenshots/*.webp'],
       registerType: 'autoUpdate',
       manifest: {
+        id: '/demo',
         name: 'Zero Crust POS Demo',
         short_name: 'Zero Crust',
         description: 'Interactive POS simulator demonstrating dual-window architecture',
@@ -26,17 +29,17 @@ export default defineConfig({
         start_url: '/demo',
         icons: [
           {
-            src: 'pwa-192x192.png',
+            src: '/pwa-192x192.png',
             sizes: '192x192',
             type: 'image/png',
           },
           {
-            src: 'pwa-512x512.png',
+            src: '/pwa-512x512.png',
             sizes: '512x512',
             type: 'image/png',
           },
           {
-            src: 'pwa-maskable-512x512.png',
+            src: '/pwa-maskable-512x512.png',
             sizes: '512x512',
             type: 'image/png',
             purpose: 'maskable',
@@ -44,23 +47,24 @@ export default defineConfig({
         ],
         screenshots: [
           {
-            src: 'screenshots/cashier.png',
-            sizes: '1280x720',
+            src: '/screenshots/cashier.png',
+            sizes: '2050x1538',
             type: 'image/png',
             form_factor: 'wide',
             label: 'Cashier Window',
           },
           {
-            src: 'screenshots/customer.png',
-            sizes: '1280x720',
+            src: '/screenshots/customer.png',
+            sizes: '948x1537',
             type: 'image/png',
-            form_factor: 'wide',
+            form_factor: 'narrow',
             label: 'Customer Display',
           },
         ],
       },
       workbox: {
-        globPatterns: ['**/*.{css,js,html,svg,png,ico,txt,woff2}'],
+        globPatterns: ['**/*.{css,js,html,svg,png,webp,ico,txt,woff2}'],
+        navigateFallback: '/demo',
       },
       devOptions: {
         enabled: true,

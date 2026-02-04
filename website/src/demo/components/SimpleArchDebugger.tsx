@@ -212,33 +212,33 @@ export function SimpleArchDebugger({ events, stats, isConnected, onClear }: Simp
   return (
     <div className="h-full flex flex-col bg-slate-950 text-gray-100">
       {/* Header */}
-      <div className="flex items-center justify-between p-3 border-b border-slate-700 shrink-0">
-        <div className="flex items-center gap-3">
-          <h3 className="font-semibold text-sm">Debugger</h3>
-          <div className="flex items-center gap-1.5">
-            <span className={`w-2 h-2 rounded-full ${isConnected ? 'bg-emerald-400' : 'bg-red-400'}`} />
-            <span className="text-gray-400 text-xs">{isConnected ? 'Live' : 'Disconnected'}</span>
+      <div className="flex items-center justify-between p-2 md:p-3 border-b border-slate-700 shrink-0">
+        <div className="flex items-center gap-2 md:gap-3">
+          <h3 className="font-semibold text-xs md:text-sm">Debug</h3>
+          <div className="flex items-center gap-1">
+            <span className={`w-1.5 h-1.5 md:w-2 md:h-2 rounded-full ${isConnected ? 'bg-emerald-400' : 'bg-red-400'}`} />
+            <span className="text-gray-400 text-[10px] md:text-xs hidden sm:inline">{isConnected ? 'Live' : 'Off'}</span>
           </div>
         </div>
-        <div className="flex items-center gap-2">
-          <span className="text-gray-400 text-xs">
-            {filteredEvents.length}/{events.length} events
+        <div className="flex items-center gap-1 md:gap-2">
+          <span className="text-gray-400 text-[10px] md:text-xs hidden sm:inline">
+            {filteredEvents.length}/{events.length}
           </span>
           <button
             onClick={() => setShowStats(!showStats)}
-            className={`px-2 py-0.5 rounded text-xs ${showStats ? 'bg-purple-600 text-white' : 'bg-slate-700 text-gray-400'}`}
+            className={`px-1.5 md:px-2 py-0.5 rounded text-[10px] md:text-xs ${showStats ? 'bg-purple-600 text-white' : 'bg-slate-700 text-gray-400'}`}
           >
             Stats
           </button>
           <button
             onClick={() => setAutoScroll(!autoScroll)}
-            className={`px-2 py-0.5 rounded text-xs ${autoScroll ? 'bg-amber-600 text-white' : 'bg-slate-700 text-gray-400'}`}
+            className={`px-1.5 md:px-2 py-0.5 rounded text-[10px] md:text-xs ${autoScroll ? 'bg-amber-600 text-white' : 'bg-slate-700 text-gray-400'}`}
           >
-            {autoScroll ? 'Auto-scroll' : 'Manual'}
+            {autoScroll ? 'Auto' : 'Manual'}
           </button>
           <button
             onClick={onClear}
-            className="px-2 py-0.5 rounded text-xs bg-slate-700 hover:bg-slate-600 text-gray-300"
+            className="px-1.5 md:px-2 py-0.5 rounded text-[10px] md:text-xs bg-slate-700 hover:bg-slate-600 active:bg-slate-500 text-gray-300"
           >
             Clear
           </button>
@@ -246,8 +246,8 @@ export function SimpleArchDebugger({ events, stats, isConnected, onClear }: Simp
       </div>
 
       {/* Filter Bar */}
-      <div className="flex items-center gap-1 px-3 py-2 border-b border-slate-700 text-xs shrink-0 flex-wrap">
-        <span className="text-gray-500 mr-1">Filter:</span>
+      <div className="flex items-center gap-0.5 md:gap-1 px-2 md:px-3 py-1 md:py-2 border-b border-slate-700 text-[10px] md:text-xs shrink-0 flex-wrap">
+        <span className="text-gray-500 mr-0.5 md:mr-1 hidden sm:inline">Filter:</span>
         {ALL_EVENT_TYPES.map((type) => {
           const config = EVENT_TYPE_CONFIG[type];
           const isEnabled = enabledTypes.has(type);
@@ -256,46 +256,47 @@ export function SimpleArchDebugger({ events, stats, isConnected, onClear }: Simp
             <button
               key={type}
               onClick={() => toggleType(type)}
-              className={`px-2 py-0.5 rounded transition-colors ${
+              className={`px-1 md:px-2 py-0.5 rounded transition-colors ${
                 isEnabled ? `${config.bgColor} ${config.color}` : 'bg-slate-800 text-gray-600'
               }`}
             >
-              {config.label}
-              <span className="ml-1 opacity-60">{count}</span>
+              <span className="hidden sm:inline">{config.label}</span>
+              <span className="sm:hidden">{config.label.slice(0, 3)}</span>
+              <span className="ml-0.5 md:ml-1 opacity-60">{count}</span>
             </button>
           );
         })}
         <div className="flex-1" />
-        <button onClick={enableAll} className="px-1.5 py-0.5 rounded text-gray-500 hover:text-gray-300">
+        <button onClick={enableAll} className="px-1 md:px-1.5 py-0.5 rounded text-gray-500 hover:text-gray-300 active:text-white">
           All
         </button>
-        <button onClick={disableAll} className="px-1.5 py-0.5 rounded text-gray-500 hover:text-gray-300">
+        <button onClick={disableAll} className="px-1 md:px-1.5 py-0.5 rounded text-gray-500 hover:text-gray-300 active:text-white">
           None
         </button>
       </div>
 
       {/* Stats Panel (collapsible) */}
       {showStats && (
-        <div className="px-3 py-2 border-b border-slate-700 text-xs shrink-0 bg-slate-900/50">
-          <div className="grid grid-cols-2 gap-x-6 gap-y-1">
+        <div className="px-2 md:px-3 py-1.5 md:py-2 border-b border-slate-700 text-[10px] md:text-xs shrink-0 bg-slate-900/50">
+          <div className="grid grid-cols-2 gap-x-3 md:gap-x-6 gap-y-0.5 md:gap-y-1">
             <div className="flex items-center justify-between">
-              <span className="text-gray-500">Total Events:</span>
+              <span className="text-gray-500">Events:</span>
               <span className="text-blue-400 font-mono">{stats?.totalEvents ?? events.length}</span>
             </div>
             <div className="flex items-center justify-between">
-              <span className="text-gray-500">State Version:</span>
+              <span className="text-gray-500">Version:</span>
               <span className="text-amber-400 font-mono">{stats?.currentStateVersion ?? 0}</span>
             </div>
             <div className="flex items-center justify-between">
-              <span className="text-gray-500">Events/sec:</span>
-              <span className="text-emerald-400 font-mono">{stats?.eventsPerSecond?.toFixed(1) ?? '0.0'}</span>
+              <span className="text-gray-500">Rate:</span>
+              <span className="text-emerald-400 font-mono">{stats?.eventsPerSecond?.toFixed(1) ?? '0.0'}/s</span>
             </div>
             <div className="flex items-center justify-between">
               <span className="text-gray-500">Windows:</span>
               <span className="text-purple-400 font-mono">{stats?.connectedWindowCount ?? 0}</span>
             </div>
           </div>
-          <div className="mt-2 pt-2 border-t border-slate-700">
+          <div className="hidden md:block mt-2 pt-2 border-t border-slate-700">
             <div className="text-gray-500 mb-1">Average Latency by Type:</div>
             <div className="grid grid-cols-4 gap-1">
               {ALL_EVENT_TYPES.map((type) => {
@@ -315,12 +316,12 @@ export function SimpleArchDebugger({ events, stats, isConnected, onClear }: Simp
       )}
 
       {/* Event Timeline */}
-      <div ref={scrollRef} className="flex-1 overflow-y-auto p-2 font-mono text-xs">
+      <div ref={scrollRef} className="flex-1 overflow-y-auto p-1 md:p-2 font-mono text-[10px] md:text-xs">
         {filteredEvents.length === 0 ? (
-          <div className="text-gray-500 text-center py-8">
+          <div className="text-gray-500 text-center py-6 md:py-8 text-xs">
             {events.length === 0
-              ? 'No events yet. Interact with the demo to see trace events.'
-              : 'No events match the current filter.'}
+              ? 'No events yet. Interact with the demo.'
+              : 'No events match filter.'}
           </div>
         ) : (
           <div className="space-y-0.5">
@@ -334,32 +335,36 @@ export function SimpleArchDebugger({ events, stats, isConnected, onClear }: Simp
                 <div key={event.id}>
                   <div
                     onClick={() => event.payload && toggleExpanded(event.id)}
-                    className={`flex items-start gap-2 py-1 px-2 rounded hover:bg-slate-800/50 ${
+                    className={`flex items-start gap-1 md:gap-2 py-0.5 md:py-1 px-1 md:px-2 rounded hover:bg-slate-800/50 active:bg-slate-800 ${
                       event.payload ? 'cursor-pointer' : ''
                     } ${isExpanded ? 'bg-slate-800/30' : ''}`}
                   >
                     {/* Expand indicator */}
-                    <span className="text-gray-600 w-3 shrink-0">
+                    <span className="text-gray-600 w-2 md:w-3 shrink-0">
                       {event.payload ? (isExpanded ? '▼' : '▶') : ''}
                     </span>
 
-                    {/* Timestamp */}
-                    <span className="text-gray-500 shrink-0">{formatTime(event.timestamp)}</span>
+                    {/* Timestamp - shorter on mobile */}
+                    <span className="text-gray-500 shrink-0 hidden sm:inline">{formatTime(event.timestamp)}</span>
+                    <span className="text-gray-500 shrink-0 sm:hidden">{formatTime(event.timestamp).slice(-6)}</span>
 
                     {/* Event type */}
-                    <span className={`${config.color} shrink-0 w-24`}>{config.label}</span>
+                    <span className={`${config.color} shrink-0 w-16 md:w-24`}>
+                      <span className="hidden md:inline">{config.label}</span>
+                      <span className="md:hidden">{config.label.slice(0, 4)}</span>
+                    </span>
 
-                    {/* Source → Target */}
-                    <span className="text-gray-400 shrink-0">{event.source}</span>
-                    <span className="text-gray-600">→</span>
-                    <span className="text-gray-400 shrink-0">{event.target || 'all'}</span>
+                    {/* Source → Target - hidden on mobile */}
+                    <span className="text-gray-400 shrink-0 hidden md:inline">{event.source}</span>
+                    <span className="text-gray-600 hidden md:inline">→</span>
+                    <span className="text-gray-400 shrink-0 hidden md:inline">{event.target || 'all'}</span>
 
                     {/* Correlation indicator */}
-                    {hasCorrelation && <span className="text-amber-500 shrink-0" title={`Correlation: ${event.correlationId}`}>⟲</span>}
+                    {hasCorrelation && <span className="text-amber-500 shrink-0 hidden sm:inline" title={`Correlation: ${event.correlationId}`}>⟲</span>}
 
                     {/* Latency */}
                     {event.latencyMs !== undefined && (
-                      <span className="text-cyan-500 shrink-0 w-12 text-right">{event.latencyMs}ms</span>
+                      <span className="text-cyan-500 shrink-0 w-10 md:w-12 text-right">{event.latencyMs}ms</span>
                     )}
 
                     {/* Payload summary */}
@@ -372,8 +377,8 @@ export function SimpleArchDebugger({ events, stats, isConnected, onClear }: Simp
 
                   {/* Expanded payload */}
                   {isExpanded && event.payload != null && (
-                    <div className="ml-8 mr-2 mb-2 p-2 bg-slate-900 rounded border border-slate-700 overflow-x-auto">
-                      <pre className="text-[10px] text-gray-300 whitespace-pre-wrap break-all">
+                    <div className="ml-4 md:ml-8 mr-1 md:mr-2 mb-1 md:mb-2 p-1.5 md:p-2 bg-slate-900 rounded border border-slate-700 overflow-x-auto">
+                      <pre className="text-[9px] md:text-[10px] text-gray-300 whitespace-pre-wrap break-all">
                         {JSON.stringify(event.payload, null, 2)}
                       </pre>
                     </div>

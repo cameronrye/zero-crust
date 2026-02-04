@@ -76,81 +76,118 @@ export function TransactionHistory() {
   const renderContent = () => {
     if (loadingState === 'loading') {
       return (
-        <div className="flex items-center justify-center py-12">
-          <div className="w-6 h-6 border-2 border-amber-500 border-t-transparent rounded-full animate-spin mr-2" />
-          <span className="text-gray-400">Loading transactions...</span>
+        <div className="flex items-center justify-center py-8 md:py-12">
+          <div className="w-5 h-5 md:w-6 md:h-6 border-2 border-amber-500 border-t-transparent rounded-full animate-spin mr-2" />
+          <span className="text-gray-400 text-sm md:text-base">Loading...</span>
         </div>
       );
     }
 
     if (loadingState === 'error') {
       return (
-        <div className="text-center py-12">
-          <div className="text-rose-400 mb-2">{errorMessage}</div>
-          <p className="text-gray-500 text-sm">Transactions will appear when available.</p>
+        <div className="text-center py-8 md:py-12 px-4">
+          <div className="text-rose-400 mb-2 text-sm md:text-base">{errorMessage}</div>
+          <p className="text-gray-500 text-xs md:text-sm">Transactions will appear when available.</p>
         </div>
       );
     }
 
     if (sortedTransactions.length === 0) {
       return (
-        <div className="text-center text-gray-500 py-12">
+        <div className="text-center text-gray-500 py-8 md:py-12 text-xs md:text-base px-4">
           No transactions yet. Complete a sale to see it here.
         </div>
       );
     }
 
     return (
-      <table className="w-full text-left text-sm">
-        <thead className="bg-slate-800 text-gray-400 sticky top-0">
-          <tr>
-            <th className="px-4 py-3 font-medium">ID</th>
-            <th className="px-4 py-3 font-medium">Time</th>
-            <th className="px-4 py-3 font-medium">Items</th>
-            <th className="px-4 py-3 font-medium text-right">Total</th>
-            <th className="px-4 py-3 font-medium">Status</th>
-          </tr>
-        </thead>
-        <tbody className="divide-y divide-slate-700">
+      <>
+        {/* Mobile card layout */}
+        <div className="md:hidden space-y-2 p-2">
           {sortedTransactions.map((txn) => (
-            <tr key={txn.id} className="hover:bg-slate-800/50">
-              <td
+            <div key={txn.id} className="bg-slate-800 rounded p-3">
+              <div className="flex justify-between items-start mb-2">
+                <span className={`px-2 py-0.5 rounded text-xs font-medium ${statusStyles[txn.status]}`}>
+                  {txn.status.charAt(0).toUpperCase() + txn.status.slice(1)}
+                </span>
+                <span className="text-gray-400 text-xs">
+                  {new Date(txn.timestamp).toLocaleTimeString()}
+                </span>
+              </div>
+              <div className="flex justify-between items-center">
+                <span className="text-gray-400 text-xs">
+                  {txn.items.reduce((sum, item) => sum + item.quantity, 0)} items
+                </span>
+                <span className="text-emerald-400 font-bold">
+                  {formatCurrency(txn.totalInCents)}
+                </span>
+              </div>
+              <button
                 onClick={() => copyToClipboard(txn.id)}
-                className="px-4 py-3 font-mono text-xs cursor-pointer hover:text-amber-400 transition-colors"
-                title="Click to copy"
+                className="mt-2 pt-2 border-t border-slate-700 font-mono text-[10px] text-gray-500 truncate cursor-pointer active:text-amber-400 w-full text-left"
               >
                 {copiedId === txn.id ? (
                   <span className="text-emerald-400">Copied!</span>
                 ) : (
                   txn.id
                 )}
-              </td>
-              <td className="px-4 py-3 text-gray-400">
-                {new Date(txn.timestamp).toLocaleTimeString()}
-              </td>
-              <td className="px-4 py-3">
-                {txn.items.reduce((sum, item) => sum + item.quantity, 0)} items
-              </td>
-              <td className="px-4 py-3 text-right font-medium">
-                {formatCurrency(txn.totalInCents)}
-              </td>
-              <td className="px-4 py-3">
-                <span className={`px-2 py-1 rounded text-xs font-medium ${statusStyles[txn.status]}`}>
-                  {txn.status.charAt(0).toUpperCase() + txn.status.slice(1)}
-                </span>
-              </td>
-            </tr>
+              </button>
+            </div>
           ))}
-        </tbody>
-      </table>
+        </div>
+
+        {/* Desktop table layout */}
+        <table className="hidden md:table w-full text-left text-sm">
+          <thead className="bg-slate-800 text-gray-400 sticky top-0">
+            <tr>
+              <th className="px-4 py-3 font-medium">ID</th>
+              <th className="px-4 py-3 font-medium">Time</th>
+              <th className="px-4 py-3 font-medium">Items</th>
+              <th className="px-4 py-3 font-medium text-right">Total</th>
+              <th className="px-4 py-3 font-medium">Status</th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-slate-700">
+            {sortedTransactions.map((txn) => (
+              <tr key={txn.id} className="hover:bg-slate-800/50">
+                <td
+                  onClick={() => copyToClipboard(txn.id)}
+                  className="px-4 py-3 font-mono text-xs cursor-pointer hover:text-amber-400 transition-colors"
+                  title="Click to copy"
+                >
+                  {copiedId === txn.id ? (
+                    <span className="text-emerald-400">Copied!</span>
+                  ) : (
+                    txn.id
+                  )}
+                </td>
+                <td className="px-4 py-3 text-gray-400">
+                  {new Date(txn.timestamp).toLocaleTimeString()}
+                </td>
+                <td className="px-4 py-3">
+                  {txn.items.reduce((sum, item) => sum + item.quantity, 0)} items
+                </td>
+                <td className="px-4 py-3 text-right font-medium">
+                  {formatCurrency(txn.totalInCents)}
+                </td>
+                <td className="px-4 py-3">
+                  <span className={`px-2 py-1 rounded text-xs font-medium ${statusStyles[txn.status]}`}>
+                    {txn.status.charAt(0).toUpperCase() + txn.status.slice(1)}
+                  </span>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </>
     );
   };
 
   return (
     <div className="h-full flex flex-col bg-slate-900 text-gray-100">
-      <div className="p-4 border-b border-slate-700 shrink-0">
-        <h3 className="font-semibold">Transaction History</h3>
-        <p className="text-gray-400 text-sm mt-1">{transactions.length} transaction(s)</p>
+      <div className="p-2 md:p-4 border-b border-slate-700 shrink-0 flex items-center justify-between">
+        <h3 className="font-semibold text-sm md:text-base">Transactions</h3>
+        <span className="text-gray-400 text-xs md:text-sm">{transactions.length} total</span>
       </div>
 
       <div className="flex-1 overflow-auto">

@@ -107,9 +107,9 @@ export function StateInspector({ events }: Readonly<StateInspectorProps>) {
 
   if (snapshots.length === 0) {
     return (
-      <div className="h-full flex flex-col bg-slate-900 p-3">
-        <h3 className="text-white font-semibold text-sm mb-2">State Inspector</h3>
-        <div className="flex-1 flex items-center justify-center text-gray-500 text-xs">
+      <div className="h-full flex flex-col bg-slate-900 p-2 md:p-3">
+        <h3 className="text-white font-semibold text-xs md:text-sm mb-2">State</h3>
+        <div className="flex-1 flex items-center justify-center text-gray-500 text-[10px] md:text-xs">
           No state broadcasts yet
         </div>
       </div>
@@ -128,18 +128,18 @@ export function StateInspector({ events }: Readonly<StateInspectorProps>) {
   return (
     <div className="h-full flex flex-col bg-slate-900">
       {/* Header */}
-      <div className="flex items-center justify-between p-2 border-b border-slate-700">
-        <h3 className="text-white font-semibold text-sm">State Inspector</h3>
-        <div className="flex items-center gap-2 text-xs">
+      <div className="flex items-center justify-between p-1.5 md:p-2 border-b border-slate-700">
+        <h3 className="text-white font-semibold text-xs md:text-sm">State</h3>
+        <div className="flex items-center gap-1 md:gap-2 text-[10px] md:text-xs">
           <span className="text-gray-400">v{currentSnapshot?.version ?? '-'}</span>
-          <span className="text-gray-500">{time}</span>
+          <span className="text-gray-500 hidden sm:inline">{time}</span>
         </div>
       </div>
 
       {/* Slider */}
-      <div className="px-3 py-2 border-b border-slate-700">
-        <div className="flex items-center gap-2">
-          <span className="text-gray-500 text-xs">History:</span>
+      <div className="px-2 md:px-3 py-1.5 md:py-2 border-b border-slate-700">
+        <div className="flex items-center gap-1.5 md:gap-2">
+          <span className="text-gray-500 text-[10px] md:text-xs hidden sm:inline">History:</span>
           <input
             type="range"
             min={0}
@@ -148,14 +148,14 @@ export function StateInspector({ events }: Readonly<StateInspectorProps>) {
             onChange={(e) => setSelectedIndex(Number.parseInt(e.target.value, 10))}
             className="flex-1 h-1 bg-slate-700 rounded-lg appearance-none cursor-pointer accent-amber-500"
           />
-          <span className="text-gray-400 text-xs font-mono w-12 text-right">
+          <span className="text-gray-400 text-[10px] md:text-xs font-mono w-10 md:w-12 text-right">
             {currentIndex + 1}/{snapshots.length}
           </span>
         </div>
       </div>
 
       {/* State Tree */}
-      <div className="flex-1 overflow-auto p-2 text-xs font-mono">
+      <div className="flex-1 overflow-auto p-1.5 md:p-2 text-[10px] md:text-xs font-mono">
         {currentSnapshot && (
           <JsonTree data={currentSnapshot.state} changedPaths={changedPaths} />
         )}
@@ -163,9 +163,9 @@ export function StateInspector({ events }: Readonly<StateInspectorProps>) {
 
       {/* Changed Fields */}
       {changedPaths.size > 0 && (
-        <div className="px-3 py-2 border-t border-slate-700 bg-slate-800/50">
-          <div className="text-xs text-amber-400">
-            {changedPaths.size} field{changedPaths.size !== 1 ? 's' : ''} changed
+        <div className="px-2 md:px-3 py-1.5 md:py-2 border-t border-slate-700 bg-slate-800/50">
+          <div className="text-[10px] md:text-xs text-amber-400">
+            {changedPaths.size} changed
           </div>
         </div>
       )}

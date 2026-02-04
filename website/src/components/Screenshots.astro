@@ -49,13 +49,16 @@ const portraitScreenshot = {
       {
         primaryScreenshots.map((screenshot) => (
           <div class="group">
-            <div class="relative overflow-hidden rounded-xl border border-zinc-700/50 bg-zinc-800/50">
-              <img
-                src={screenshot.src}
-                alt={screenshot.alt}
-                class="w-full h-auto transition-transform duration-300 group-hover:scale-105"
-                loading="lazy"
-              />
+            <div class="relative rounded-xl border border-zinc-700/50 bg-zinc-800/50 transition-all duration-300 group-hover:border-amber-500/70 group-hover:ring-2 group-hover:ring-amber-500/30">
+              <picture>
+                <source srcset={screenshot.src.replace('.png', '.webp')} type="image/webp" />
+                <img
+                  src={screenshot.src}
+                  alt={screenshot.alt}
+                  class="w-full h-auto rounded-xl"
+                  loading="lazy"
+                />
+              </picture>
             </div>
             <div class="mt-4">
               <h3 class="text-lg font-semibold text-zinc-100">
@@ -72,13 +75,16 @@ const portraitScreenshot = {
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
       <!-- Wide screenshot - spans 2 columns -->
       <div class="group lg:col-span-2">
-        <div class="relative overflow-hidden rounded-xl border border-zinc-700/50 bg-zinc-800/50 aspect-5/2">
-          <img
-            src={wideScreenshot.src}
-            alt={wideScreenshot.alt}
-            class="w-full h-full object-cover object-top transition-transform duration-300 group-hover:scale-105"
-            loading="lazy"
-          />
+        <div class="relative rounded-xl border border-zinc-700/50 bg-zinc-800/50 aspect-5/2 transition-all duration-300 group-hover:border-amber-500/70 group-hover:ring-2 group-hover:ring-amber-500/30">
+          <picture>
+            <source srcset={wideScreenshot.src.replace('.png', '.webp')} type="image/webp" />
+            <img
+              src={wideScreenshot.src}
+              alt={wideScreenshot.alt}
+              class="w-full h-full object-cover object-top rounded-xl"
+              loading="lazy"
+            />
+          </picture>
         </div>
         <div class="mt-4">
           <h3 class="text-lg font-semibold text-zinc-100">
@@ -90,13 +96,16 @@ const portraitScreenshot = {
 
       <!-- Portrait screenshot - 1 column -->
       <div class="group">
-        <div class="relative overflow-hidden rounded-xl border border-zinc-700/50 bg-zinc-800/50 aspect-3/4 lg:aspect-5/8">
-          <img
-            src={portraitScreenshot.src}
-            alt={portraitScreenshot.alt}
-            class="w-full h-full object-cover object-top transition-transform duration-300 group-hover:scale-105"
-            loading="lazy"
-          />
+        <div class="relative rounded-xl border border-zinc-700/50 bg-zinc-800/50 aspect-3/4 lg:aspect-5/8 transition-all duration-300 group-hover:border-amber-500/70 group-hover:ring-2 group-hover:ring-amber-500/30">
+          <picture>
+            <source srcset={portraitScreenshot.src.replace('.png', '.webp')} type="image/webp" />
+            <img
+              src={portraitScreenshot.src}
+              alt={portraitScreenshot.alt}
+              class="w-full h-full object-cover object-top rounded-xl"
+              loading="lazy"
+            />
+          </picture>
         </div>
         <div class="mt-4">
           <h3 class="text-lg font-semibold text-zinc-100">

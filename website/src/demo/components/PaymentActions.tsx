@@ -39,33 +39,33 @@ export function PaymentActions({
   const isPaid = status === 'PAID';
 
   return (
-    <div className="p-4 border-t border-slate-700 bg-slate-800">
+    <div className="p-2 md:p-4 border-t border-slate-700 bg-slate-800">
       {isError && errorMessage && (
-        <div className="mb-4 p-3 bg-rose-900/50 border border-rose-700 rounded text-rose-200 text-sm">
+        <div className="mb-2 md:mb-4 p-2 md:p-3 bg-rose-900/50 border border-rose-700 rounded text-rose-200 text-xs md:text-sm">
           {errorMessage}
         </div>
       )}
 
-      <div className="flex justify-between items-center mb-4">
-        <span className="text-gray-400">Total</span>
-        <span className="text-2xl font-bold text-emerald-400">
+      <div className="flex justify-between items-center mb-2 md:mb-4">
+        <span className="text-gray-400 text-xs md:text-base">Total</span>
+        <span className="text-lg md:text-2xl font-bold text-emerald-400">
           {formatCurrency(totalInCents)}
         </span>
       </div>
 
       {status === 'IDLE' && (
-        <div className="flex gap-2">
+        <div className="flex gap-1 md:gap-2">
           <button
             onClick={onClearCart}
             disabled={!cartLength}
-            className="flex-1 py-3 rounded font-medium bg-slate-700 hover:bg-slate-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors cursor-pointer"
+            className="flex-1 py-2 md:py-3 rounded text-xs md:text-base font-medium bg-slate-700 hover:bg-slate-600 active:bg-slate-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors cursor-pointer"
           >
             Clear
           </button>
           <button
             onClick={onCheckout}
             disabled={!cartLength}
-            className="flex-[2] py-3 rounded font-medium bg-emerald-600 hover:bg-emerald-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors cursor-pointer"
+            className="flex-[2] py-2 md:py-3 rounded text-xs md:text-base font-medium bg-emerald-600 hover:bg-emerald-500 active:bg-emerald-400 disabled:opacity-50 disabled:cursor-not-allowed transition-colors cursor-pointer"
           >
             Checkout
           </button>
@@ -73,49 +73,49 @@ export function PaymentActions({
       )}
 
       {isPending && (
-        <div className="flex gap-2">
+        <div className="flex gap-1 md:gap-2">
           <button
             onClick={onCancelCheckout}
-            className="flex-1 py-3 rounded font-medium bg-slate-700 hover:bg-slate-600 transition-colors cursor-pointer"
+            className="flex-1 py-2 md:py-3 rounded text-xs md:text-base font-medium bg-slate-700 hover:bg-slate-600 active:bg-slate-500 transition-colors cursor-pointer"
           >
             Cancel
           </button>
           <button
             onClick={onProcessPayment}
             aria-label="Process payment"
-            className="flex-[2] py-3 rounded font-medium bg-emerald-600 hover:bg-emerald-500 transition-colors cursor-pointer"
+            className="flex-[2] py-2 md:py-3 rounded text-xs md:text-base font-medium bg-emerald-600 hover:bg-emerald-500 active:bg-emerald-400 transition-colors cursor-pointer"
           >
-            Process Payment
+            Pay
           </button>
         </div>
       )}
 
       {isProcessing && (
-        <div className="flex items-center justify-center gap-3 py-3">
-          <div className="w-5 h-5 border-2 border-amber-500 border-t-transparent rounded-full animate-spin" />
-          <span className="text-amber-400 font-medium">Processing Payment...</span>
+        <div className="flex items-center justify-center gap-2 md:gap-3 py-2 md:py-3">
+          <div className="w-4 h-4 md:w-5 md:h-5 border-2 border-amber-500 border-t-transparent rounded-full animate-spin" />
+          <span className="text-amber-400 font-medium text-xs md:text-base">Processing...</span>
         </div>
       )}
 
       {isError && (
-        <div className="flex gap-2">
+        <div className="flex gap-1 md:gap-2">
           <button
             onClick={onCancelCheckout}
-            className="flex-1 py-3 rounded font-medium bg-slate-700 hover:bg-slate-600 transition-colors cursor-pointer"
+            className="flex-1 py-2 md:py-3 rounded text-xs md:text-base font-medium bg-slate-700 hover:bg-slate-600 active:bg-slate-500 transition-colors cursor-pointer"
           >
             Cancel
           </button>
           {canRetry ? (
             <button
               onClick={onRetryPayment}
-              className="flex-[2] py-3 rounded font-medium bg-amber-600 hover:bg-amber-500 transition-colors cursor-pointer"
+              className="flex-[2] py-2 md:py-3 rounded text-xs md:text-base font-medium bg-amber-600 hover:bg-amber-500 active:bg-amber-400 transition-colors cursor-pointer"
             >
-              Retry Payment
+              Retry
             </button>
           ) : (
             <button
               disabled
-              className="flex-[2] py-3 rounded font-medium bg-slate-600 opacity-50 cursor-not-allowed"
+              className="flex-[2] py-2 md:py-3 rounded text-xs md:text-base font-medium bg-slate-600 opacity-50 cursor-not-allowed"
             >
               Contact Manager
             </button>
@@ -126,7 +126,7 @@ export function PaymentActions({
       {isPaid && (
         <button
           onClick={onNewTransaction}
-          className="w-full py-3 rounded font-medium bg-amber-600 hover:bg-amber-500 transition-colors cursor-pointer"
+          className="w-full py-2 md:py-3 rounded text-xs md:text-base font-medium bg-amber-600 hover:bg-amber-500 active:bg-amber-400 transition-colors cursor-pointer"
         >
           New Transaction
         </button>

@@ -11,7 +11,7 @@ export const INVENTORY_CONFIG = {
   /** Sentinel value representing unlimited stock quantity */
   UNLIMITED_STOCK: -1,
   /** Initial stock quantity for each product */
-  INITIAL_STOCK: 20,
+  INITIAL_STOCK: 500,
   /** Low stock threshold for visual indicator */
   LOW_STOCK_THRESHOLD: 5,
 } as const;

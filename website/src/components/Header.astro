@@ -57,9 +57,11 @@ const navLinks = [
       <button
         id="mobile-menu-btn"
         class="md:hidden p-2 text-zinc-400 hover:text-zinc-100"
-        aria-label="Toggle menu"
+        aria-label="Toggle navigation menu"
+        aria-expanded="false"
+        aria-controls="mobile-menu"
       >
-        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
           <path
             stroke-linecap="round"
             stroke-linejoin="round"
@@ -70,7 +72,7 @@ const navLinks = [
     </div>
 
     <!-- Mobile Navigation -->
-    <div id="mobile-menu" class="hidden md:hidden pb-4">
+    <div id="mobile-menu" class="hidden md:hidden pb-4" role="navigation" aria-label="Mobile navigation">
       {
         navLinks.map((link) => (
           <a
@@ -91,6 +93,8 @@ const navLinks = [
   const btn = document.getElementById("mobile-menu-btn");
   const menu = document.getElementById("mobile-menu");
   btn?.addEventListener("click", () => {
+    const isExpanded = btn.getAttribute("aria-expanded") === "true";
+    btn.setAttribute("aria-expanded", String(!isExpanded));
     menu?.classList.toggle("hidden");
   });
 </script>

@@ -11,4 +11,5 @@ export { ProductGrid } from './ProductGrid';
 export { SimpleArchDebugger } from './SimpleArchDebugger';
 export { StateInspector } from './StateInspector';
 export { TransactionHistory } from './TransactionHistory';
+export { StorageErrorToast } from './StorageErrorToast';
 

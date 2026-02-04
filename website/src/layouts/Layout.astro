@@ -34,7 +34,7 @@ const structuredData = {
     "priceCurrency": "USD"
   },
   "downloadUrl": "https://github.com/cameronrye/zero-crust/releases",
-  "softwareVersion": "1.1.8",
+  "softwareVersion": "1.1.9",
   "screenshot": `${siteUrl}/screenshots/cashier.png`,
   "url": siteUrl
 };
@@ -60,6 +60,11 @@ const structuredData = {
     <meta name="theme-color" content={themeColor} />
     <meta name="msapplication-TileColor" content={themeColor} />
 
+    <!-- iOS PWA Support -->
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="Zero Crust" />
+
     <!-- Canonical URL -->
     <link rel="canonical" href={siteUrl} />
 
@@ -84,9 +89,10 @@ const structuredData = {
     <meta name="twitter:image:alt" content="Zero Crust POS Simulator - Cashier View" />
     <meta name="twitter:creator" content="@cameronrye" />
 
-    <!-- Favicon -->
+    <!-- Favicon & PWA -->
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <link rel="apple-touch-icon" href="/og-image.png" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="manifest" href="/manifest.webmanifest" />
 
     <!-- Structured Data -->
     <script is:inline type="application/ld+json" set:html={JSON.stringify(structuredData)} />

@@ -38,19 +38,19 @@ export function CartSidebar({
   const canRetry = isError && (state?.retryCount ?? 0) < RETRY_CONFIG.maxRetries;
 
   return (
-    <div className="w-80 bg-slate-800 border-l border-slate-700 flex flex-col min-h-0">
-      <div className="p-4 border-b border-slate-700 shrink-0 flex items-center justify-between">
-        <h2 className="font-bold text-lg">Current Order</h2>
-        <span className={`px-3 py-1 rounded text-sm font-bold ${STATUS_BADGE_COLORS[status]}`}>
+    <div className="w-44 sm:w-56 md:w-80 h-full bg-slate-800 border-l border-slate-700 flex flex-col min-h-0 overflow-hidden">
+      <div className="p-2 md:p-4 border-b border-slate-700 shrink-0 flex items-center justify-between">
+        <h2 className="font-bold text-sm md:text-lg">Order</h2>
+        <span className={`px-2 md:px-3 py-0.5 md:py-1 rounded text-xs md:text-sm font-bold ${STATUS_BADGE_COLORS[status]}`}>
           {status}
         </span>
       </div>
 
-      <div className="flex-1 overflow-y-auto p-4 min-h-0">
+      <div className="flex-1 overflow-y-auto p-2 md:p-4 min-h-0">
         {!state || state.cart.length === 0 ? (
-          <p className="text-gray-500 italic text-center py-8">Cart is empty</p>
+          <p className="text-gray-500 italic text-center py-4 md:py-8 text-xs md:text-base">Cart is empty</p>
         ) : (
-          <div className="space-y-3">
+          <div className="space-y-2 md:space-y-3">
             {state.cart.map((item: CartItem, index: number) => (
               <CartItemRow
                 key={item.id}

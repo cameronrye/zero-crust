@@ -8,8 +8,8 @@
 import { useState, Component, type ReactNode, type ErrorInfo } from 'react';
 import type { ProductCategory } from './shared/catalog';
 import { WebAPIProvider } from './context/WebAPIContext';
-import { usePOSState, usePOSCommands, usePOSMetrics, usePOSInventory, useTraceEvents, useKeyboardShortcuts } from './hooks';
-import { ProductGrid, CartSidebar, CustomerDisplay, TransactionHistory, SimpleArchDebugger, StateInspector, MetricsBar } from './components';
+import { usePOSState, usePOSCommands, usePOSMetrics, usePOSInventory, useTraceEvents, useKeyboardShortcuts, useStorageErrors } from './hooks';
+import { ProductGrid, CartSidebar, CustomerDisplay, TransactionHistory, SimpleArchDebugger, StateInspector, MetricsBar, StorageErrorToast } from './components';
 
 /**
  * Error Boundary component to gracefully handle runtime errors
@@ -44,9 +44,9 @@ class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
   render(): ReactNode {
     if (this.state.hasError) {
       return (
-        <div className="h-full flex items-center justify-center bg-slate-950 text-gray-100 p-8">
+        <div className="h-full flex items-center justify-center bg-slate-950 text-gray-100 p-8" role="alert" aria-live="assertive">
           <div className="text-center max-w-md">
-            <div className="text-4xl mb-4">⚠️</div>
+            <div className="text-4xl mb-4" aria-hidden="true">⚠️</div>
             <h2 className="text-xl font-bold text-rose-400 mb-2">Something went wrong</h2>
             <p className="text-gray-400 mb-4">
               The demo encountered an error. This has been logged for debugging.
@@ -91,18 +91,19 @@ function CashierPanel() {
 
   if (isLoading) {
     return (
-      <div className="h-full flex items-center justify-center bg-slate-900 text-gray-400">
-        <div className="w-6 h-6 border-2 border-amber-500 border-t-transparent rounded-full animate-spin mr-2" />
-        Loading...
-      </div>
+      <output className="h-full flex items-center justify-center bg-slate-900 text-gray-400" aria-live="polite" aria-busy="true">
+        <div className="w-6 h-6 border-2 border-amber-500 border-t-transparent rounded-full animate-spin mr-2" aria-hidden="true" />
+        <span>Loading...</span>
+      </output>
     );
   }
 
   if (error) {
     return (
-      <div className="h-full flex items-center justify-center bg-slate-900 text-gray-100 p-8">
+      <div className="h-full flex items-center justify-center bg-slate-900 text-gray-100 p-8" role="alert" aria-live="assertive">
         <div className="text-center max-w-sm">
-          <div className="text-3xl mb-3 text-rose-400">Connection Error</div>
+          <div className="text-3xl mb-3 text-rose-400" aria-hidden="true">Connection Error</div>
+          <h2 className="sr-only">Connection Error</h2>
           <p className="text-gray-400 mb-4">{error.message}</p>
           <button
             onClick={retry}
@@ -152,8 +153,10 @@ function CustomerPanel() {
 
 function DebuggerPanel() {
   const { events, stats, isConnected, clearEvents } = useTraceEvents();
+  const [showMobileState, setShowMobileState] = useState(false);
+
   return (
-    <div className="h-full flex flex-col md:flex-row">
+    <div className="h-full flex flex-col md:flex-row relative">
       {/* Event Timeline */}
       <div className="flex-1 min-w-0 md:border-r border-slate-700 border-b md:border-b-0">
         <SimpleArchDebugger
@@ -167,6 +170,47 @@ function DebuggerPanel() {
       <div className="hidden md:block w-80 shrink-0">
         <StateInspector events={events} />
       </div>
+
+      {/* Mobile State Inspector Toggle Button */}
+      <button
+        onClick={() => setShowMobileState(true)}
+        className="md:hidden fixed bottom-4 right-4 z-40 px-4 py-2 bg-amber-600 text-white rounded-full shadow-lg font-medium text-sm hover:bg-amber-500 transition-colors"
+        aria-label="Open state inspector"
+      >
+        State
+      </button>
+
+      {/* Mobile State Inspector Drawer */}
+      {showMobileState && (
+        <div className="md:hidden fixed inset-0 z-50 flex flex-col">
+          {/* Backdrop */}
+          <div
+            className="absolute inset-0 bg-black/60"
+            onClick={() => setShowMobileState(false)}
+            aria-hidden="true"
+          />
+          {/* Drawer */}
+          <div className="absolute bottom-0 left-0 right-0 h-[70vh] bg-slate-900 rounded-t-2xl shadow-xl flex flex-col animate-in slide-in-from-bottom duration-200">
+            {/* Drawer Header */}
+            <div className="flex items-center justify-between p-3 border-b border-slate-700">
+              <h2 className="font-semibold text-white">State Inspector</h2>
+              <button
+                onClick={() => setShowMobileState(false)}
+                className="p-1.5 text-gray-400 hover:text-white transition-colors rounded-lg hover:bg-slate-800"
+                aria-label="Close state inspector"
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+            {/* Drawer Content */}
+            <div className="flex-1 overflow-hidden">
+              <StateInspector events={events} />
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
@@ -176,9 +220,10 @@ function DemoContent() {
   const [mobilePanel, setMobilePanel] = useState<MobilePanel>('cashier');
   const { state, isLocked } = usePOSState();
   const commands = usePOSCommands();
+  const { error: storageError, dismissError } = useStorageErrors();
 
   const tabs: { id: ViewTab; label: string }[] = [
-    { id: 'pos', label: 'POS Demo' },
+    { id: 'pos', label: 'POS' },
     { id: 'transactions', label: 'Transactions' },
     { id: 'debugger', label: 'Debugger' },
   ];
@@ -206,15 +251,18 @@ function DemoContent() {
 
   return (
     <div className="h-full flex flex-col bg-slate-950">
+      {/* Storage Error Toast */}
+      <StorageErrorToast error={storageError} onDismiss={dismissError} />
+
       {/* Tab Navigation */}
-      <nav className="flex items-center gap-2 p-2 bg-slate-900 border-b border-slate-700 shrink-0" aria-label="Demo views">
+      <nav className="flex items-center gap-1 md:gap-2 p-1 md:p-2 bg-slate-900 border-b border-slate-700 shrink-0" aria-label="Demo views">
         {tabs.map((tab) => (
           <button
             key={tab.id}
             onClick={() => setActiveTab(tab.id)}
             aria-pressed={activeTab === tab.id}
             aria-label={`${tab.label}${activeTab === tab.id ? ' (active)' : ''}`}
-            className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+            className={`px-2 md:px-4 py-1.5 md:py-2 rounded-lg text-xs md:text-sm font-medium transition-colors ${
               activeTab === tab.id
                 ? 'bg-amber-600 text-white'
                 : 'bg-slate-800 text-gray-400 hover:bg-slate-700 hover:text-gray-200'
@@ -229,19 +277,19 @@ function DemoContent() {
           disabled={!canToggleAutoplay}
           aria-label={demoLoopRunning ? 'Stop automatic demo transactions' : 'Start automatic demo transactions'}
           aria-pressed={demoLoopRunning}
-          className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${getAutoplayButtonClass()}`}
+          className={`px-2 md:px-4 py-1.5 md:py-2 rounded-lg text-xs md:text-sm font-medium transition-colors ${getAutoplayButtonClass()}`}
         >
-          {demoLoopRunning ? 'Stop' : 'Autoplay'}
+          {demoLoopRunning ? 'Stop' : 'Auto'}
         </button>
         <a
           href="/"
           target="_blank"
           rel="noopener noreferrer"
-          className="px-3 py-2 rounded-lg text-sm font-medium bg-slate-800 text-gray-400 hover:bg-slate-700 hover:text-gray-200 transition-colors"
+          className="hidden md:block px-3 py-2 rounded-lg text-sm font-medium bg-slate-800 text-gray-400 hover:bg-slate-700 hover:text-gray-200 transition-colors"
         >
           Website
         </a>
-        <div className="text-xs text-gray-500 ml-2">
+        <div className="hidden lg:block text-xs text-gray-500 ml-2">
           Zero Crust POS - Web Demo
         </div>
       </nav>
